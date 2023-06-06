@@ -34,3 +34,34 @@ sequenceDiagram
 
     Note right of browser: The browser executes the callback function that renders the notes 
 ```
+    
+teht 0.5: Sivun https://studies.cs.helsinki.fi/exampleapp/spa lataaminen
+
+```mermaid
+sequenceDiagram
+    participant browser
+    participant browser
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa
+    activate server
+    server-->>browser: 200 OK - HTML file
+    deactivate server
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    activate server
+    server-->>browser: 200 OK - main CSS file
+    deactivate server
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+    activate server
+    server-->>browser: 200 OK - main JavaScript file
+    deactivate server
+
+    Note right of browser: The browser executes the JS file -> tells browser to fetch JSON
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: 200 OK - JSON data [{"content": "note text", "date": "2023-06-06T14:18:18.530Z"}, {...}, ...]
+
+    Note right of browser: The browser executes the callback -> tells browser to render notes
+```
