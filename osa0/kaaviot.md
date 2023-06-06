@@ -65,3 +65,21 @@ sequenceDiagram
 
     Note right of browser: The browser executes the callback -> tells browser to render notes
 ```
+
+teht 0.6: Uuden muistiinpanon luonti sivulla https://studies.cs.helsinki.fi/exampleapp/spa
+
+```mermaid
+sequenceDiagram
+    participant browser
+    participant server
+
+    Note right of browser: Browser adds the new note to the list of notes
+    Note right of browser: Browser redraws notes to include the new one
+    Note right of browser: Browser sends notes the server by POST method as JSON data
+    
+
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+    activate server
+    server-->>browser: 201 Created - response data {"message":"note created"}
+    deactivate server
+```
