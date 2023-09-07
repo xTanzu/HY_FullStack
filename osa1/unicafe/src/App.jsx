@@ -24,12 +24,22 @@ const Button = ({handleClick, text}) => {
 }
 
 const Statistics = ({stats}) => {
+    const good_fb = stats.good
+    const neutral_fb = stats.neutral
+    const bad_fb = stats.bad
+    const all_fb = good_fb + neutral_fb + bad_fb
+    const average_fb = Math.round((good_fb - bad_fb) / all_fb * 100) / 100
+    const positive_fb_percent = Math.round(good_fb / all_fb * 100)
+    
     return (
         <div>
             <Header>statistics</Header>            
-            <Stat text='good' value={stats.good} /> 
-            <Stat text='neutral' value={stats.neutral} /> 
-            <Stat text='bad' value={stats.bad} /> 
+            <Stat text='good' value={good_fb} /> 
+            <Stat text='neutral' value={neutral_fb} /> 
+            <Stat text='bad' value={bad_fb} /> 
+            <Stat text='all' value={all_fb} /> 
+            <Stat text='average' value={average_fb ? average_fb : '0'} /> 
+            <Stat text='positive' value={positive_fb_percent ? positive_fb_percent + '%' : '0%'} /> 
         </div>
     )
 }
