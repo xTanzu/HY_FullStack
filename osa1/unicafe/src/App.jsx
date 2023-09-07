@@ -28,20 +28,24 @@ const Statistics = ({stats}) => {
     const neutral_fb = stats.neutral
     const bad_fb = stats.bad
     const all_fb = good_fb + neutral_fb + bad_fb
-    const average_fb = Math.round((good_fb - bad_fb) / all_fb * 100) / 100
-    const positive_fb_percent = Math.round(good_fb / all_fb * 100)
     
-    return (
-        <div>
-            <Header>statistics</Header>            
-            <Stat text='good' value={good_fb} /> 
-            <Stat text='neutral' value={neutral_fb} /> 
-            <Stat text='bad' value={bad_fb} /> 
-            <Stat text='all' value={all_fb} /> 
-            <Stat text='average' value={average_fb ? average_fb : '0'} /> 
-            <Stat text='positive' value={positive_fb_percent ? positive_fb_percent + '%' : '0%'} /> 
-        </div>
-    )
+    if (all_fb > 0) {
+        const average_fb = Math.round((good_fb - bad_fb) / all_fb * 100) / 100
+        const positive_fb_percent = Math.round(good_fb / all_fb * 100)
+        return (
+            <div>
+                <Header>statistics</Header>            
+                <Stat text='good' value={good_fb} /> 
+                <Stat text='neutral' value={neutral_fb} /> 
+                <Stat text='bad' value={bad_fb} /> 
+                <Stat text='all' value={all_fb} /> 
+                <Stat text='average' value={average_fb} /> 
+                <Stat text='positive' value={positive_fb_percent + '%'} /> 
+            </div>
+        )
+    }
+
+    return <p>No feedback given</p>
 }
 
 const Stat = ({text, value}) => {
