@@ -33,15 +33,17 @@ const Statistics = ({stats}) => {
         const average_fb = Math.round((good_fb - bad_fb) / all_fb * 100) / 100
         const positive_fb_percent = Math.round(good_fb / all_fb * 100)
         return (
-            <div>
+            <>
                 <Header>statistics</Header>            
-                <StatisticLine text='good' value={good_fb} /> 
-                <StatisticLine text='neutral' value={neutral_fb} /> 
-                <StatisticLine text='bad' value={bad_fb} /> 
-                <StatisticLine text='all' value={all_fb} /> 
-                <StatisticLine text='average' value={average_fb} /> 
-                <StatisticLine text='positive' value={positive_fb_percent + '%'} /> 
-            </div>
+                <table>
+                    <StatisticLine text='good' value={good_fb} /> 
+                    <StatisticLine text='neutral' value={neutral_fb} /> 
+                    <StatisticLine text='bad' value={bad_fb} /> 
+                    <StatisticLine text='all' value={all_fb} /> 
+                    <StatisticLine text='average' value={average_fb} /> 
+                    <StatisticLine text='positive' value={positive_fb_percent + '%'} /> 
+                </table>
+            </>
         )
     }
 
@@ -50,7 +52,10 @@ const Statistics = ({stats}) => {
 
 const StatisticLine = ({text, value}) => {
     return (
-        <div>{text} {value}</div>
+        <tr>
+            <td>{text}</td> 
+            <td>{value}</td>
+        </tr>
     )
 }
 const App = () => {
