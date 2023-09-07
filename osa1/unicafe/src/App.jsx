@@ -36,12 +36,14 @@ const Statistics = ({stats}) => {
             <>
                 <Header>statistics</Header>            
                 <table>
-                    <StatisticLine text='good' value={good_fb} /> 
-                    <StatisticLine text='neutral' value={neutral_fb} /> 
-                    <StatisticLine text='bad' value={bad_fb} /> 
-                    <StatisticLine text='all' value={all_fb} /> 
-                    <StatisticLine text='average' value={average_fb} /> 
-                    <StatisticLine text='positive' value={positive_fb_percent + '%'} /> 
+                    <tbody>
+                        <StatisticLine text='good' value={good_fb} /> 
+                        <StatisticLine text='neutral' value={neutral_fb} /> 
+                        <StatisticLine text='bad' value={bad_fb} /> 
+                        <StatisticLine text='all' value={all_fb} /> 
+                        <StatisticLine text='average' value={average_fb} /> 
+                        <StatisticLine text='positive' value={positive_fb_percent + '%'} /> 
+                    </tbody>
                 </table>
             </>
         )
