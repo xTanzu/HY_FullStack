@@ -6,6 +6,19 @@ const Button = ({text, onClick}) => {
     )
 }
 
+const Heading = ({children}) => {
+    return <h1>{children}</h1>
+}
+
+const Anecdote = ({content, votes}) => {
+    return ( 
+        <>
+            <p>{content}</p>
+            <p>has {votes} votes</p>
+        </>
+    )
+}
+
 const App = () => {
     const anecdotes = [
         'If it hurts, do it more often.',
@@ -18,13 +31,14 @@ const App = () => {
         'The only way to go fast, is to go well.'
     ]
 
-    const randInt = (ceil) => Math.floor(Math.random() * ceil)
 
     const [selected, setSelected] = useState(randInt(anecdotes.length))
     const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+
+    let mostVotes = indexOfMax(votes)
     
     const onNextAnecdote = () => {
-        setSelected(randInt(anecdotes.length))
+        setSelected(randInt(anecdotes.length, selected))
     }
 
     const onVote = () => {
@@ -35,12 +49,42 @@ const App = () => {
 
     return (
         <div>
-            <p>{anecdotes[selected]}</p>
-            <p>has {votes[selected]} votes</p>
+            <Heading>Anecdote of the day</Heading>
+            <Anecdote content={anecdotes[selected]} votes={votes[selected]} />
             <Button text='vote' onClick={onVote} />
             <Button text='next anecdote' onClick={onNextAnecdote} />
+            <Heading>Anecdote with most votes</Heading>
+            <Anecdote content={anecdotes[mostVotes]} votes={votes[mostVotes]} />
         </div>
     )
+}
+
+/* ------------ Helper functions ------------ */
+
+const randInt = (ceil, avoid = -1) => {
+    let rndInt
+    do {
+        rndInt = Math.floor(Math.random() * ceil)
+    } while (rndInt === avoid)
+    return rndInt
+}
+
+const indexOfMax = (arr) => {
+    if (arr.length === 0) {
+        return -1
+    }
+
+    let maxIndex = 0
+    let maxValue = arr[maxIndex]
+
+    for (let i=1; i<arr.length; i++) {
+        if (arr[i] > maxValue) {
+            maxIndex = i
+            maxValue = arr[i]
+        }
+    }
+
+    return maxIndex
 }
 
 export default App
