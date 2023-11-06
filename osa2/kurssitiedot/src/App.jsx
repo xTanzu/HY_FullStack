@@ -1,4 +1,6 @@
-import CourseList from './components/CourseList'
+import Course from './components/Course'
+
+const CourseList = ({ courses }) => courses.map(course => <Course key={course.id} course={course} />)
 
 const App = () => {
     const courses = [
