@@ -9,7 +9,7 @@ const Course = ({ course }) => {
 }
 
 const Header = ({ children }) => (
-        <h1>{children}</h1>
+        <h2>{children}</h2>
 )
 
 const Content = ({ parts }) => {
