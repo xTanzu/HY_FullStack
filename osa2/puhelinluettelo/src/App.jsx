@@ -30,6 +30,11 @@ const App = () => {
 
   const addNewPerson = (event) => {
     event.preventDefault()
+    const names = persons.map(person => person.name)
+    if (names.includes(newName)) {
+      alert(`'${newName}' already exists`)
+      return
+    }
     const newPerson = {
       name: newName
     }
