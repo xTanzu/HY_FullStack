@@ -13,33 +13,56 @@ const NumberListing = ({ persons }) => {
 
 const Person = ({ person }) => {
   return (
-    <p>{person.name}</p>
+    <p>{person.name} {person.number}</p>
   )
 }
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas" }
+    { name: "Arto Hellas", number: "040-1231234" }
   ]) 
   const [newName, setNewName] = useState("")
+  const [newNumber, setNewNumber] = useState("")
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
     setNewName(event.target.value)
   }
 
+  const handleNumberChange = (event) => {
+    console.log(event.target.value)
+    setNewNumber(event.target.value)
+  }
+
+  const notValid = (newPerson) => {
+    if (newPerson.name.length == 0 || newPerson.number.length == 0) {
+      return true
+    }
+    const names = persons.map(person => person.name)
+    if (names.includes(newPerson.name)) {
+      alert(`'${newPerson.name}' already exists`)
+      return true
+    }
+    const numbers = persons.map(person => person.number)
+    if (numbers.includes(newPerson.number)) {
+      alert(`number '${newPerson.number}' already has an owner`)
+      return true
+    }
+    return false
+  }
+
   const addNewPerson = (event) => {
     event.preventDefault()
-    const names = persons.map(person => person.name)
-    if (names.includes(newName)) {
-      alert(`'${newName}' already exists`)
-      return
-    }
     const newPerson = {
-      name: newName
+      name: newName,
+      number: newNumber
+    }
+    if (notValid(newPerson)) {
+      return
     }
     setPersons(persons.concat(newPerson))
     setNewName("")
+    setNewNumber("")
     console.log("New Person added!")
   }
 
@@ -48,7 +71,8 @@ const App = () => {
       <h2>Phonebook</h2>
       <form>
         <div>
-          name: <input value={newName} onChange={handleNameChange}/>
+          name: <input value={newName} onChange={handleNameChange}/><br/>
+          number: <input value={newNumber} onChange={handleNumberChange}/>
         </div>
         <div>
           <button type="submit" onClick={addNewPerson}>add</button>
