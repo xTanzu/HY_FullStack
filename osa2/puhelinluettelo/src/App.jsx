@@ -23,6 +23,7 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState("")
   const [newNumber, setNewNumber] = useState("")
+  const [wordFilter, setWordFilter] = useState("")
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
@@ -32,6 +33,11 @@ const App = () => {
   const handleNumberChange = (event) => {
     console.log(event.target.value)
     setNewNumber(event.target.value)
+  }
+  
+  const handleFilterChange = (event) => {
+    console.log(event.target.value)
+    setWordFilter(event.target.value)
   }
 
   const notValid = (newPerson) => {
@@ -66,9 +72,13 @@ const App = () => {
     console.log("New Person added!")
   }
 
+  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(wordFilter.toLowerCase()))
+
   return (
     <div>
       <h2>Phonebook</h2>
+      filter: <input value={wordFilter} onChange={handleFilterChange}/>
+      <h2>Add a new</h2>
       <form>
         <div>
           name: <input value={newName} onChange={handleNameChange}/><br/>
@@ -78,7 +88,7 @@ const App = () => {
           <button type="submit" onClick={addNewPerson}>add</button>
         </div>
       </form>
-    <NumberListing persons={persons}/>
+    <NumberListing persons={personsToShow}/>
     </div>
   )
 
