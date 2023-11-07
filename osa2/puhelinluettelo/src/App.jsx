@@ -1,5 +1,30 @@
 import { useState } from "react"
 
+const Filter = ({ searchTerm, handleChange }) => {
+  return (
+    <>
+      <label htmlFor="nameFilter">filter:</label>
+      <input id="nameFilter" value={searchTerm} onChange={handleChange}/>
+    </>
+  )
+}
+
+const PersonForm = ({ name, number, submitHandler }) => {
+  return (
+    <form>
+      <div>
+        <label htmlFor="name_field">name: </label>
+        <input id="name_field" value={name.value} onChange={name.handler}/><br/>
+        <label htmlFor="number_field">number: </label>
+        <input id="number_field" value={number.value} onChange={number.handler}/>
+      </div>
+      <div>
+        <button type="submit" onClick={submitHandler}>add</button>
+      </div>
+    </form>
+  )
+}
+
 const NumberListing = ({ persons }) => {
   return (
     <>
@@ -19,7 +44,11 @@ const Person = ({ person }) => {
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-1231234" }
+    { name: "Arto Hella", number: "040-1231234" },
+    { name: 'Arto Hellas', number: '040-123456' },
+    { name: 'Ada Lovelace', number: '39-44-5323523' },
+    { name: 'Dan Abramov', number: '12-43-234345' },
+    { name: 'Mary Poppendieck', number: '39-23-6423122' }
   ]) 
   const [newName, setNewName] = useState("")
   const [newNumber, setNewNumber] = useState("")
@@ -77,18 +106,10 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      filter: <input value={wordFilter} onChange={handleFilterChange}/>
+      <Filter searchTerm={wordFilter} handleChange={handleFilterChange}/>
       <h2>Add a new</h2>
-      <form>
-        <div>
-          name: <input value={newName} onChange={handleNameChange}/><br/>
-          number: <input value={newNumber} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit" onClick={addNewPerson}>add</button>
-        </div>
-      </form>
-    <NumberListing persons={personsToShow}/>
+      <PersonForm name={{value: newName, handler: handleNameChange}} number={{value: newNumber, handler: handleNumberChange}} submitHandler={addNewPerson}/>
+      <NumberListing persons={personsToShow}/>
     </div>
   )
 
