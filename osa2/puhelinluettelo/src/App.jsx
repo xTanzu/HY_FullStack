@@ -1,46 +1,7 @@
 import { useState } from "react"
-
-const Filter = ({ searchTerm, handleChange }) => {
-  return (
-    <>
-      <label htmlFor="nameFilter">filter:</label>
-      <input id="nameFilter" value={searchTerm} onChange={handleChange}/>
-    </>
-  )
-}
-
-const PersonForm = ({ name, number, submitHandler }) => {
-  return (
-    <form>
-      <div>
-        <label htmlFor="name_field">name: </label>
-        <input id="name_field" value={name.value} onChange={name.handler}/><br/>
-        <label htmlFor="number_field">number: </label>
-        <input id="number_field" value={number.value} onChange={number.handler}/>
-      </div>
-      <div>
-        <button type="submit" onClick={submitHandler}>add</button>
-      </div>
-    </form>
-  )
-}
-
-const NumberListing = ({ persons }) => {
-  return (
-    <>
-      <h2>Numbers:</h2>
-      <div className="persons">
-        {persons.map(person => <Person key={person.name} person={person}/>)}
-      </div>
-    </>
-  )
-}
-
-const Person = ({ person }) => {
-  return (
-    <p>{person.name} {person.number}</p>
-  )
-}
+import Filter from "./components/Filter"
+import PersonForm from "./components/PersonForm"
+import Persons from "./components/Persons"
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -109,7 +70,7 @@ const App = () => {
       <Filter searchTerm={wordFilter} handleChange={handleFilterChange}/>
       <h2>Add a new</h2>
       <PersonForm name={{value: newName, handler: handleNameChange}} number={{value: newNumber, handler: handleNumberChange}} submitHandler={addNewPerson}/>
-      <NumberListing persons={personsToShow}/>
+      <Persons persons={personsToShow}/>
     </div>
   )
 
