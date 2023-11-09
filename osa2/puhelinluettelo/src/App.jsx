@@ -15,7 +15,6 @@ const App = () => {
   useEffect(() => {
     PersonService.getAll()
       .then(persons => {
-        console.log("Setting initial Persons")
         setPersons(persons)
       })
   }, [])
@@ -39,11 +38,6 @@ const App = () => {
     if (newPerson.name.length == 0 || newPerson.number.length == 0) {
       return true
     }
-    const names = persons.map(person => person.name)
-    if (names.includes(newPerson.name)) {
-      alert(`'${newPerson.name}' already exists`)
-      return true
-    }
     const numbers = persons.map(person => person.number)
     if (numbers.includes(newPerson.number)) {
       alert(`number '${newPerson.number}' already has an owner`)
@@ -52,7 +46,37 @@ const App = () => {
     return false
   }
 
+
   const addNewPerson = (event) => {
+
+    const personExists = (newPerson) => {
+      const names = persons.map(person => person.name)
+      if (names.includes(newPerson.name)) {
+        return true
+      }
+      return false
+    }
+
+    const updatePerson = (updatedPerson) => {
+      const targetPerson = persons.find(person => person.name === updatedPerson.name)
+      PersonService.update(targetPerson.id, updatedPerson)
+        .then(returnedPerson => {
+          setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
+        })
+    }
+
+    const createPerson = () => {
+      PersonService.create(newPerson)
+        .then(createdPerson => {
+          setPersons(persons.concat(createdPerson))
+        })
+    }
+
+    const emptyInputFields = () => {
+      setNewName("")
+      setNewNumber("")
+    }
+
     event.preventDefault()
     const newPerson = {
       name: newName,
@@ -61,13 +85,15 @@ const App = () => {
     if (notValid(newPerson)) {
       return
     }
-    PersonService.create(newPerson)
-      .then(createdPerson => {
-        setNewName("")
-        setNewNumber("")
-        setPersons(persons.concat(createdPerson))
-        // console.log("New Person added!")
-      })
+    if (personExists(newPerson)) {
+      if (window.confirm(`${newPerson.name} already exists, replace the old number with this new one?`)) {
+        updatePerson(newPerson)
+        emptyInputFields()
+      }
+    } else {
+      createPerson(newPerson)
+      emptyInputFields()
+    }
   }
 
   const deletePerson = (id) => {
