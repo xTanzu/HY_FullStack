@@ -70,6 +70,18 @@ const App = () => {
       })
   }
 
+  const deletePerson = (id) => {
+    event.preventDefault()
+    const personToDelete = persons.find(person => person.id === id)
+    if (window.confirm(`Are u sure u want to delete ${personToDelete.name}?`)) {
+      PersonService.remove(id)
+        .catch(error => {
+          console.log("Error removing the person")
+        })
+      setPersons(persons.filter(person => person.id !== id))
+    }
+  }
+
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(wordFilter.toLowerCase()))
 
   return (
@@ -78,7 +90,7 @@ const App = () => {
       <Filter searchTerm={wordFilter} handleChange={handleFilterChange}/>
       <h2>Add a new</h2>
       <PersonForm name={{value: newName, handler: handleNameChange}} number={{value: newNumber, handler: handleNumberChange}} submitHandler={addNewPerson}/>
-      <Persons persons={personsToShow}/>
+      <Persons persons={personsToShow} handleDelete={deletePerson}/>
     </div>
   )
 
