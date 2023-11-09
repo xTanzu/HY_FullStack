@@ -77,6 +77,8 @@ const App = () => {
       PersonService.create(newPerson)
         .then(createdPerson => {
           setPersons(persons.concat(createdPerson))
+          setInfoMessage(`${newPerson.name} created`)
+          emptyInputFields()
         })
     }
 
@@ -99,8 +101,6 @@ const App = () => {
       }
     } else {
       createPerson(newPerson)
-      setInfoMessage(`${newPerson.name} created`)
-      emptyInputFields()
     }
   }
 
