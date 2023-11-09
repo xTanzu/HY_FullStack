@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import Filter from "./components/Filter"
 import PersonForm from "./components/PersonForm"
 import Persons from "./components/Persons"
+import Notification from "./components/Notification"
 
 import PersonService from "./services/PersonService"
 
@@ -11,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState("")
   const [newNumber, setNewNumber] = useState("")
   const [wordFilter, setWordFilter] = useState("")
+  const [notification, setNotification] = useState("Random message")
 
   useEffect(() => {
     PersonService.getAll()
@@ -34,20 +36,19 @@ const App = () => {
     setWordFilter(event.target.value)
   }
 
-  const notValid = (newPerson) => {
-    if (newPerson.name.length == 0 || newPerson.number.length == 0) {
-      return true
-    }
-    const numbers = persons.map(person => person.number)
-    if (numbers.includes(newPerson.number)) {
-      alert(`number '${newPerson.number}' already has an owner`)
-      return true
-    }
-    return false
-  }
-
-
   const addNewPerson = (event) => {
+
+    const notValid = (newPerson) => {
+      if (newPerson.name.length == 0 || newPerson.number.length == 0) {
+        return true
+      }
+      const numbers = persons.map(person => person.number)
+      if (numbers.includes(newPerson.number)) {
+        setNotification(`number '${newPerson.number}' already has an owner`)
+        return true
+      }
+      return false
+    }
 
     const personExists = (newPerson) => {
       const names = persons.map(person => person.name)
@@ -88,10 +89,12 @@ const App = () => {
     if (personExists(newPerson)) {
       if (window.confirm(`${newPerson.name} already exists, replace the old number with this new one?`)) {
         updatePerson(newPerson)
+        setNotification(`${newPerson.name} updated`)
         emptyInputFields()
       }
     } else {
       createPerson(newPerson)
+      setNotification(`${newPerson.name} created`)
       emptyInputFields()
     }
   }
@@ -101,6 +104,9 @@ const App = () => {
     const personToDelete = persons.find(person => person.id === id)
     if (window.confirm(`Are u sure u want to delete ${personToDelete.name}?`)) {
       PersonService.remove(id)
+        .then(() => {
+          setNotification(`${personToDelete.name} deleted`)
+        })
         .catch(error => {
           console.log("Error removing the person")
         })
@@ -108,11 +114,17 @@ const App = () => {
     }
   }
 
+  const disableNotification = () => {
+    console.log("disabled")
+    setNotification(null)
+  }
+
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(wordFilter.toLowerCase()))
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} disableMessage={disableNotification}/>
       <Filter searchTerm={wordFilter} handleChange={handleFilterChange}/>
       <h2>Add a new</h2>
       <PersonForm name={{value: newName, handler: handleNameChange}} number={{value: newNumber, handler: handleNumberChange}} submitHandler={addNewPerson}/>
