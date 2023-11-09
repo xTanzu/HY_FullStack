@@ -22,17 +22,17 @@ const App = () => {
   useEffect(getPersonData, [])
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
+    // console.log(event.target.value)
     setNewName(event.target.value)
   }
 
   const handleNumberChange = (event) => {
-    console.log(event.target.value)
+    // console.log(event.target.value)
     setNewNumber(event.target.value)
   }
   
   const handleFilterChange = (event) => {
-    console.log(event.target.value)
+    // console.log(event.target.value)
     setWordFilter(event.target.value)
   }
 
@@ -62,10 +62,14 @@ const App = () => {
     if (notValid(newPerson)) {
       return
     }
-    setPersons(persons.concat(newPerson))
-    setNewName("")
-    setNewNumber("")
-    console.log("New Person added!")
+    axios
+      .post('http://localhost:3001/persons', newPerson)
+      .then(response => {
+        setNewName("")
+        setNewNumber("")
+        setPersons(persons.concat(response.data))
+        // console.log("New Person added!")
+      })
   }
 
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(wordFilter.toLowerCase()))
