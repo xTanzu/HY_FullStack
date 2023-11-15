@@ -6,8 +6,7 @@ import CountryService from "./services/CountryService"
 
 const App = () => {
 
-  const [countryData, setCountryData] = useState({})
-  const [countryNames, setCountryNames] = useState([])
+  const [countryData, setCountryData] = useState([])
   const [wordFilter, setWordFilter] = useState("")
 
   useEffect(() => getAllCountryData(), [])
@@ -16,7 +15,7 @@ const App = () => {
     CountryService.getAllCountries()
       .then(responseData => {
         setCountryData(responseData)
-        setCountryNames(responseData.map(country => country.name.common))
+        // setCountryNames(responseData.map(country => country.name.common))
       })
   }
 
@@ -24,12 +23,12 @@ const App = () => {
     setWordFilter(event.target.value)
   }
 
-  const filteredCountryNames = countryNames.filter(country => country.toLowerCase().includes(wordFilter.toLowerCase()))
+  const filteredCountries = countryData.filter(country => country.name.common.toLowerCase().includes(wordFilter.toLowerCase()))
 
   return (
     <>
       <Search value={wordFilter} changeHandler={handleSearchChange}/>
-      <SearchResults countries={filteredCountryNames}/>  
+      <SearchResults countries={filteredCountries}/>  
     </>
   )
 
