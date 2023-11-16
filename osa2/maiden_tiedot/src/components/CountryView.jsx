@@ -6,7 +6,7 @@ const CountryView = ({ country }) => {
       <p>area: {country.area}</p>
       <h3>languages:</h3>
       <ul>
-        {Object.values(country.languages).map(language => <li>{language}</li>)}
+        {Object.values(country.languages).map(language => <li key={language}>{language}</li>)}
       </ul>      
       <img src={country.flags.png} alt={`The flag of ${country.name.common}`}/>
     </div>    

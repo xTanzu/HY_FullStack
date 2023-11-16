@@ -15,7 +15,6 @@ const App = () => {
     CountryService.getAllCountries()
       .then(responseData => {
         setCountryData(responseData)
-        // setCountryNames(responseData.map(country => country.name.common))
       })
   }
 
