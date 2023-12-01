@@ -39,17 +39,17 @@ const App = () => {
 
   const addNewPerson = (event) => {
 
-    const notValid = (newPerson) => {
-      if (newPerson.name.length == 0 || newPerson.number.length == 0) {
-        return true
-      }
-      const numbers = persons.map(person => person.number)
-      if (numbers.includes(newPerson.number)) {
-        setAlertMessage(`number '${newPerson.number}' already has an owner`)
-        return true
-      }
-      return false
-    }
+    // const notValid = (newPerson) => {
+    //   if (newPerson.name.length == 0 || newPerson.number.length == 0) {
+    //     return true
+    //   }
+    //   const numbers = persons.map(person => person.number)
+    //   if (numbers.includes(newPerson.number)) {
+    //     setAlertMessage(`number '${newPerson.number}' already has an owner`)
+    //     return true
+    //   }
+    //   return false
+    // }
 
     const personExists = (newPerson) => {
       const names = persons.map(person => person.name)
@@ -74,11 +74,16 @@ const App = () => {
     }
 
     const createPerson = () => {
-      PersonService.create(newPerson)
-        .then(createdPerson => {
-          setPersons(persons.concat(createdPerson))
+      PersonService
+        .create(newPerson)
+        .then(response => {
+          setPersons(persons.concat(response))
           setInfoMessage(`${newPerson.name} created`)
           emptyInputFields()
+        })
+        .catch(error => {
+          console.log(error)
+          setAlertMessage(error.response.data.error)
         })
     }
 
@@ -92,9 +97,9 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-    if (notValid(newPerson)) {
-      return
-    }
+    // if (notValid(newPerson)) {
+    //   return
+    // }
     if (personExists(newPerson)) {
       if (window.confirm(`${newPerson.name} already exists, replace the old number with this new one?`)) {
         updatePerson(newPerson)
