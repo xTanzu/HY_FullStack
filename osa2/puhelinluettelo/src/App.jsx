@@ -82,7 +82,6 @@ const App = () => {
           emptyInputFields()
         })
         .catch(error => {
-          console.log(error)
           setAlertMessage(error.response.data.error)
         })
     }

@@ -1,0 +1,23 @@
+{
+  "name": "blogilista",
+  "version": "1.0.0",
+  "description": "Fullstack part4 exercise application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "author": "Taneli Härkönen",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "dotenv-expand": "^10.0.0",
+    "nodemon": "^3.0.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^7.6.5"
+  }
+}
