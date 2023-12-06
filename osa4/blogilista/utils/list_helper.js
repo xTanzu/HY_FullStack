@@ -30,8 +30,38 @@ const favoriteBlog = blogs => {
   }
 }
 
+const mostBlogs = blogs => {
+
+  const formAuthorStats = blog => {
+    if (blog.author in authors) {
+      authors[blog.author]++
+    } else {
+      authors[blog.author] = 1
+    }
+  }
+
+  const authorWithMostBlogs = (authors) => {
+    return Object.entries(authors).sort((a,b) => b[1] - a[1])[0][0]
+  }
+
+  if (blogs.length === 0) {
+    return null
+  }
+
+  let authors = {}
+  blogs.forEach(formAuthorStats)
+  maxAuthor = authorWithMostBlogs(authors)
+
+  return {
+    author: maxAuthor,
+    blogs: authors[maxAuthor]
+  }
+
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
