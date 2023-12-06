@@ -41,7 +41,7 @@ const mostBlogs = blogs => {
   }
 
   const authorWithMostBlogs = authors => {
-    return Object.entries(authors).sort((a,b) => b[1] - a[1])[0][0]
+    return Object.entries(authors).sort((a,b) => b[1] - a[1])[0]
   }
 
   if (blogs.length === 0) {
@@ -50,11 +50,11 @@ const mostBlogs = blogs => {
 
   let authors = {}
   blogs.forEach(formAuthorBlogStats)
-  maxAuthor = authorWithMostBlogs(authors)
+  const [ maxAuthor, maxBlogs ] = authorWithMostBlogs(authors)
 
   return {
     author: maxAuthor,
-    blogs: authors[maxAuthor]
+    blogs: maxBlogs
   }
 
 }
@@ -70,7 +70,7 @@ const mostLikes = blogs => {
   }
 
   const authorWithMostLikes = authors => {
-    return Object.entries(authors).sort((a,b) => b[1] - a[1])[0][0]
+    return Object.entries(authors).sort((a,b) => b[1] - a[1])[0]
   }
 
   if (blogs.length === 0) {
@@ -79,11 +79,11 @@ const mostLikes = blogs => {
 
   let authors = {}
   blogs.forEach(formAuthorLikeStats)
-  maxAuthor = authorWithMostLikes(authors)
+  const [ maxAuthor, maxLikes ] = authorWithMostLikes(authors)
 
   return {
     author: maxAuthor,
-    likes: authors[maxAuthor]
+    likes: maxLikes
   }
 
 }
