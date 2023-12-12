@@ -16,7 +16,7 @@ blogsRouter.post('/', async (request, response, next) => {
     savedBlog = await blog.save()
     response.status(201).json(savedBlog)
   } catch(exception) {
-    next(error)
+    next(exception)
   }
 })
 

@@ -89,6 +89,30 @@ describe("test POST-request on /api/blogs endpoint", () => {
     expect(addedBlog.likes).toBe(0)
   })
 
+  test("if property 'title' or 'url' gets unpopulated, request gets '400 Bad Request' as an answer", async () => {
+    const newBlogNoTitle = {
+      author: "Geir Arne Hjelle",
+      url: "https://realpython.com/python-type-checking/",
+      likes: 5,
+    }
+
+    const newBlogNoUrl = {
+      title: "Python Type Checking (Guide)",
+      author: "Geir Arne Hjelle",
+      likes: 5,
+    }
+
+    await api
+      .post("/api/blogs")
+      .send(newBlogNoTitle)
+      .expect(400)
+    
+    await api
+      .post("/api/blogs")
+      .send(newBlogNoUrl)
+      .expect(400)
+  })
+
 })
 
 afterAll(async () => {
