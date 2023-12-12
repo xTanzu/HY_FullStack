@@ -45,14 +45,14 @@ describe("test GET-request on /api/blogs endpoint", () => {
 
 })
 
-describe("test GET-request on /api/blogs endpoint", () => {
+describe("test POST-request on /api/blogs endpoint", () => {
 
   test("blog can be added", async () => {
     const newBlog = {
-    title: "Always separate app and server files !",
-    author: "nermineslimane",
-    url: "https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7",
-    likes: 5,
+      title: "Always separate app and server files !",
+      author: "nermineslimane",
+      url: "https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7",
+      likes: 5,
     }
 
     await api
@@ -69,6 +69,24 @@ describe("test GET-request on /api/blogs endpoint", () => {
       return blog
     })
     expect(trimmedBlogs).toContainEqual(newBlog)
+  })
+
+  test("if property 'likes' gets unpopulated, it is defaulted to zero", async () => {
+    const newBlog = {
+      title: "OFFSETTING ANCHOR LINKS WITH A FIXED HEADER",
+      author: "Michael Lysiak",
+      url: "https://pixelflips.com/blog/anchor-links-with-a-fixed-header",
+    }
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    addedBlog = blogsAtEnd.find(blog => blog.url === newBlog.url)
+    expect(addedBlog.likes).toBe(0)
   })
 
 })
