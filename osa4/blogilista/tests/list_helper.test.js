@@ -1,5 +1,5 @@
 const listHelper = require("../utils/list_helper")
-const testBlogs = require("../tests/testBlogs")
+const testBlogs = require("./test_helper").testBlogs
 
 const blogs = testBlogs
 
