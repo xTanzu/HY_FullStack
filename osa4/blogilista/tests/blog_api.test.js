@@ -152,9 +152,74 @@ describe("test /api/blogs/<id> endpoint", () => {
 
   })
 
+  describe("test PUT-request", () => {
+
+    test("added blog can be updated", async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+
+      const updatedBlogContent = {
+        title: "New Title",
+        author: "New Author",
+        url: "https://newurl.com/",
+        likes: 69
+      }
+
+      await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlogContent)
+        .expect(200)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+      expect(blogsAtEnd).not.toContainEqual(blogToUpdate)
+      const strippedBlogs = blogsAtEnd.map(blog => {
+        delete blog.id
+        delete blog.__v
+        return blog
+      })
+      expect(strippedBlogs).toContainEqual(updatedBlogContent)
+    })
+
+    test("invalid id returns '400 Bad Request'", async () => {
+      invalidId = "6578ac92be4ad3b1ff"
+
+      const updatedBlogContent = {
+        title: "New Title",
+        author: "New Author",
+        url: "https://newurl.com/",
+        likes: 69
+      }
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(updatedBlogContent)
+        .expect(400)
+    })
+
+    test("non existing id returns '400 Bad Request'", async () => {
+      nonExistingId = helper.nonExistingId()
+
+      const updatedBlogContent = {
+        title: "New Title",
+        author: "New Author",
+        url: "https://newurl.com/",
+        likes: 69
+      }
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(updatedBlogContent)
+        .expect(400)
+    })
+
+  })
+
 })
 
 
 afterAll(async () => {
-  await mongoose.connection.close()
+  // This causes an error when running multiple test suites together
+  // apparently mongoose needs the connection still in other suites
+  // await mongoose.connection.close()
 })
