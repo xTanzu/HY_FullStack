@@ -144,9 +144,9 @@ describe("test /api/blogs/<id> endpoint", () => {
     })
 
     test("non existing id returns '400 Bad Request'", async () => {
-      nonExistingId = helper.nonExistingId()
+      nonExistingBlogId = helper.nonExistingBlogId()
       await api
-        .delete(`/api/blogs/${nonExistingId}`)
+        .delete(`/api/blogs/${nonExistingBlogId}`)
         .expect(400)
     })
 
@@ -198,7 +198,7 @@ describe("test /api/blogs/<id> endpoint", () => {
     })
 
     test("non existing id returns '400 Bad Request'", async () => {
-      nonExistingId = helper.nonExistingId()
+      nonExistingBlogId = helper.nonExistingBlogId()
 
       const updatedBlogContent = {
         title: "New Title",

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose")
 
 const blogSchema = mongoose.Schema({
   title: {
@@ -28,4 +28,5 @@ blogSchema.set("toJSON", {
   }
 })
 
-module.exports = mongoose.model('Blog', blogSchema)
+const Blog = mongoose.model("Blog", blogSchema)
+module.exports = Blog
