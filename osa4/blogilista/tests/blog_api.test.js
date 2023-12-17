@@ -33,8 +33,10 @@ describe("test /api/blogs endpoint", () => {
 
     test("correct blogs are returned", async () => {
       const response = await api.get("/api/blogs")
+      const pickOnlyImportantFields = ({ id, author, title, url, likes, }) => ({ id, author, title, url, likes, })
+      strippedResponse = response.body.map(blog => pickOnlyImportantFields(blog))
       testBlogs.forEach(blog => {
-        expect(response.body).toContainEqual(blog)
+        expect(strippedResponse).toContainEqual(pickOnlyImportantFields(blog))
       })
     })
 
@@ -65,11 +67,8 @@ describe("test /api/blogs endpoint", () => {
 
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd).toHaveLength(testBlogs.length + 1)
-      trimmedBlogs = blogsAtEnd.map(blog => {
-        delete blog.id
-        delete blog.__v
-        return blog
-      })
+      const pickOnlyImportantFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
+      trimmedBlogs = blogsAtEnd.map(blog => pickOnlyImportantFields(blog))
       expect(trimmedBlogs).toContainEqual(newBlog)
     })
 
