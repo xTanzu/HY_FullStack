@@ -1,6 +1,7 @@
 const usersRouter = require("express").Router()
 const User = require("../models/user")
 const bcrypt = require("bcrypt")
+const validate = require("../utils/validate")
 
 usersRouter.get("/", async (request, response, next) => {
   try {
@@ -16,6 +17,8 @@ usersRouter.get("/", async (request, response, next) => {
 usersRouter.post("/", async (request, response, next) => {
   try {
     const { username, name, password } = request.body
+
+    validate.usernameAndPassword({ username, password })
 
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -33,7 +36,7 @@ usersRouter.post("/", async (request, response, next) => {
       .json(savedUser)
   } catch(exception) {
     // console.log(exception)
-    next()
+    next(exception)
   }
 })
 

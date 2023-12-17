@@ -64,7 +64,7 @@ describe("test /api/users endpoint", () => {
 
   describe("test POST-request", () => {
 
-    test("user can be added", async () => {
+    test("valid user can be added", async () => {
       const newUser = {
         username: "maikkeli",
         name: "Michael Jackson",
@@ -82,6 +82,86 @@ describe("test /api/users endpoint", () => {
       const pickOnlyNames = ({ username, name }) => ({ username, name })
       const namesAtEnd = usersAtEnd.map(user => pickOnlyNames(user))
       expect(namesAtEnd).toContainEqual(pickOnlyNames(newUser))
+    })
+
+    test("posting user without password returns '400 Bad Request'", async () => {
+      const newUser = {
+        username: "username",
+        name: "Firstname Lastname",
+        password: ""
+      }
+
+      const response = await api
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: "username and password required"})
+    })
+
+    test("posting user without username returns '400 Bad Request'", async () => {
+      const newUser = {
+        username: "",
+        name: "Firstname Lastname",
+        password: "password"
+      }
+
+      const response = await api
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: "username and password required"})
+    })
+
+    test("posting user with username under 3 characters long returns '400 Bad Request'", async () => {
+      const newUser = {
+        username: "us",
+        name: "Firstname Lastname",
+        password: "password"
+      }
+
+      const response = await api
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: "username must be minimum of 3 characters long"})
+    })
+
+    test("posting user with password under 3 characters long returns '400 Bad Request'", async () => {
+      const newUser = {
+        username: "username",
+        name: "Firstname Lastname",
+        password: "pa"
+      }
+
+      const response = await api
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: "password must be minimum of 3 characters long"})
+    })
+
+    test("posting user with username that is not unique returns '400 Bad Request'", async () => {
+      const newUser = {
+        username: testUsers[0].username,
+        name: "Firstname Lastname",
+        password: "password"
+      }
+
+      const response = await api
+        .post("/api/users")
+        .send(newUser)
+        .expect(400)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: `${newUser.username} as username is already taken`})
     })
 
   })
