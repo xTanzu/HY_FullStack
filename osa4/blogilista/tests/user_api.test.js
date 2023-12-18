@@ -167,3 +167,46 @@ describe("test /api/users endpoint", () => {
   })
 
 })
+
+describe("test /api/login endpoint", () => {
+  
+  describe("test logging in through POST-request", () => {
+
+    test("user in database can log in and receive a login-token", async () => {
+      const loginUser = testUsers[2]
+
+      const loginInfo = {
+        username: loginUser.username,
+        password: loginUser.password
+      }
+
+      const response = await api
+        .post("/api/login")
+        .send(loginInfo)
+        .expect(200)
+        .expect("Content-Type", /application\/json/)
+
+      const pickOnlyNames = ({ username, name }) => ({ username, name })
+      expect(pickOnlyNames(response.body)).toEqual(pickOnlyNames(loginUser))
+      expect(response.body.token).toBeDefined()
+    })
+
+    test("user not in database cannot log in and receive a login-token", async () => {
+      const loginInfo = {
+        username: "nonexistentUser",
+        password: "imaginaryPassword"
+      }
+
+      const response = await api
+        .post("/api/login")
+        .send(loginInfo)
+        .expect(401)
+        .expect("Content-Type", /application\/json/)
+
+      expect(response.body).toEqual({error: "invalid username or password"})
+      expect(response.body.token).not.toBeDefined()
+    })
+
+  })
+
+})

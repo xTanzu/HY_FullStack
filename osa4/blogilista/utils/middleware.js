@@ -3,7 +3,13 @@ const logger = require("./logger")
 const requestLogger = (req, res, next) => {
   logger.info("Method:", req.method)
   logger.info("Path:", req.path)
-  logger.info("Body:", req.body)
+
+  logger.info("Body:", req.body.password === undefined 
+    ? req.body 
+    : { 
+      ...req.body, 
+      password: req.body.password.replaceAll( /./g , "*" ) 
+    })
   logger.info("---")
   next()
 }
