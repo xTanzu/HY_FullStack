@@ -5,6 +5,7 @@ const api = supertest(app)
 const Blog = require("../models/blog")
 const helper = require("./test_helper")
 const testBlogs = helper.testBlogs
+const testUsers = helper.testUsers
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -51,7 +52,34 @@ describe("test /api/blogs endpoint", () => {
 
   describe("test POST-request", () => {
 
-    test("blog can be added", async () => {
+    const loginSuccesfully = async () => {
+      loginUser = testUsers[1]
+      loginInfo = {
+        username: loginUser.username,
+        password: loginUser.password
+      }
+      const response = await api
+        .post("/api/login")
+        .send(loginInfo)
+        .expect(200)
+        .expect("Content-Type", /application\/json/)
+      return { Authorization: "Bearer " + response.body.token }
+    }
+
+    const loginUnsuccesfully = async () => {
+      loginInfo = {
+        username: "madeupname",
+        password: "notvalidusername"
+      }
+      const response = await api
+        .post("/api/login")
+        .send(loginInfo)
+        .expect(401)
+        .expect("Content-Type", /application\/json/)
+      return { Authorization: "Bearer thisIsNotAValidJSONWebToken6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthYXJpamEiLCJpZCI6IjY1ODBhOWEyNTM5NTZjNGVkNWJlNzczZiIsImlhdCI6MTcwMjk0OTYyMX0.dHLjHLIYSnZ2-sNppuzTohTuzPNwCAC8L9kILa5kzBM" }
+    }
+    test("blog made by signed in user can be added", async () => {
+      auth = await loginSuccesfully()
       const newBlog = {
         title: "Always separate app and server files !",
         author: "nermineslimane",
@@ -61,6 +89,7 @@ describe("test /api/blogs endpoint", () => {
 
       await api
         .post("/api/blogs")
+        .set(auth)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/)
@@ -71,8 +100,35 @@ describe("test /api/blogs endpoint", () => {
       trimmedBlogs = blogsAtEnd.map(blog => pickOnlyImportantFields(blog))
       expect(trimmedBlogs).toContainEqual(newBlog)
     })
+    
+    test("blog made by user not signed in cannot be added", async () => {
+      auth = await loginUnsuccesfully()
+      const newBlog = {
+        title: "Always separate app and server files !",
+        author: "nermineslimane",
+        url: "https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7",
+        likes: 5
+      }
+
+      await api
+        .post("/api/blogs")
+        .set(auth)
+        .send(newBlog)
+        .expect(401)
+        .expect("Content-Type", /application\/json/)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(testBlogs.length)
+      const pickOnlyImportantFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
+      trimmedBlogs = blogsAtEnd.map(blog => pickOnlyImportantFields(blog))
+      trimmedBlogs.forEach( blog => {
+        expect(Object.keys(blog).sort()).toEqual(Object.keys(newBlog).sort())
+      })
+      expect(trimmedBlogs).not.toContainEqual(newBlog)
+    })
 
     test("if property 'likes' gets unpopulated, it is defaulted to zero", async () => {
+      auth = await loginSuccesfully()
       const newBlog = {
         title: "OFFSETTING ANCHOR LINKS WITH A FIXED HEADER",
         author: "Michael Lysiak",
@@ -81,6 +137,7 @@ describe("test /api/blogs endpoint", () => {
 
       await api
         .post("/api/blogs")
+        .set(auth)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/)
@@ -91,6 +148,7 @@ describe("test /api/blogs endpoint", () => {
     })
 
     test("if property 'title' or 'url' gets unpopulated, request gets '400 Bad Request' as an answer", async () => {
+      auth = await loginSuccesfully()
       const newBlogNoTitle = {
         author: "Geir Arne Hjelle",
         url: "https://realpython.com/python-type-checking/",
@@ -105,11 +163,13 @@ describe("test /api/blogs endpoint", () => {
 
       await api
         .post("/api/blogs")
+        .set(auth)
         .send(newBlogNoTitle)
         .expect(400)
 
       await api
         .post("/api/blogs")
+        .set(auth)
         .send(newBlogNoUrl)
         .expect(400)
     })

@@ -161,7 +161,7 @@ describe("test /api/users endpoint", () => {
         .expect(400)
         .expect("Content-Type", /application\/json/)
 
-      expect(response.body).toEqual({error: `${newUser.username} as username is already taken`})
+      expect(response.body).toEqual({error: `"${newUser.username}" as username is already taken`})
     })
 
   })

@@ -28,7 +28,9 @@ const errorHandler = (err, req, res, next) => {
   } else if (err.name === "MongoServerError" && err.code === 11000) {
     const key = Object.keys(err.keyValue)[0]
     const value = err.keyValue[key]
-    return res.status(400).json({ error: `${value} as ${key} is already taken` })
+    return res.status(400).json({ error: `"${value}" as ${key} is already taken` })
+  } else if (err.name === "JsonWebTokenError") {
+    return res.status(401).json({ error: "JSON webtoken not matching" })
   }
 
   next(err)
