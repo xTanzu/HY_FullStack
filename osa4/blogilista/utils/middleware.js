@@ -36,9 +36,20 @@ const errorHandler = (err, req, res, next) => {
   next(err)
 }
 
+const bearerTokenExtractor = (req, res, next) => {
+  const authHeader = req.get("Authorization")
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    req.token = authHeader.replace("Bearer ", "")
+  } else {
+    req.token = null
+  }
+  next()
+}
+
 module.exports = {
   requestLogger,
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  bearerTokenExtractor
 }
 
