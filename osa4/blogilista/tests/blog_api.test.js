@@ -16,6 +16,104 @@ beforeEach(async () => {
   await Promise.all(blogPromises)
 })
 
+const loginSuccesfully = async (userIndx = 0) => {
+  loginUser = testUsers[userIndx]
+  loginInfo = {
+    username: loginUser.username,
+    password: loginUser.password
+  }
+  const response = await api
+    .post("/api/login")
+    .send(loginInfo)
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+  return { Authorization: "Bearer " + response.body.token }
+}
+
+const loginUnsuccesfully = async () => {
+  loginInfo = {
+    username: "madeupname",
+    password: "notvalidusername"
+  }
+  const response = await api
+    .post("/api/login")
+    .send(loginInfo)
+    .expect(401)
+    .expect("Content-Type", /application\/json/)
+  return { Authorization: "Bearer thisIsNotAValidJSONWebToken6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthYXJpamEiLCJpZCI6IjY1ODBhOWEyNTM5NTZjNGVkNWJlNzczZiIsImlhdCI6MTcwMjk0OTYyMX0.dHLjHLIYSnZ2-sNppuzTohTuzPNwCAC8L9kILa5kzBM" }
+}
+
+const randomInt = (minIncl, maxExcl) => {
+  return Math.floor(Math.random() * (maxExcl - minIncl) + minIncl)
+}
+
+const randomString = (length) => {
+  let result = ""
+  let counter = 0
+
+  while (counter < length) {
+    result += String.fromCharCode(randomInt(32, 127))
+    counter++
+  }
+
+  return result
+}
+
+const addNewBlog = async (auth, expectedResCode) => {
+      const blogContent = {
+        title: randomString( randomInt(10,40) ),
+        author: randomString( randomInt(10,40) ),
+        url: randomString( randomInt(20,120) ),
+        likes: randomInt(0,1000),
+      }
+
+      const response = await api
+        .post("/api/blogs")
+        .set(auth)
+        .send(blogContent)
+        .expect(expectedResCode)
+        .expect("Content-Type", /application\/json/)
+      
+      return { auth, blogContent, addedBlog: response.body }
+}
+
+const pickOnlyContentFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
+
+const checkBlogIsIncludedInList = (blogToCheck, list) => {
+  trimmedList = list.map(blog => pickOnlyContentFields(blog))
+  expect(trimmedList).toContainEqual(pickOnlyContentFields(blogToCheck))
+}
+
+const checkBlogIsNotIncludedInList = (blogToCheck, list) => {
+  trimmedList = list.map(blog => pickOnlyContentFields(blog))
+  trimmedList.forEach( blog => {
+    expect(Object.keys(blog).sort()).toEqual(Object.keys(blogToCheck).sort())
+  })
+  expect(trimmedList).not.toContainEqual(blogToCheck)
+}
+
+const checkBlogGotAddedToDb = async (blogToCheck) => {
+  const blogsAtDb = await helper.blogsInDb()
+  expect(blogsAtDb).toHaveLength(testBlogs.length + 1)
+  checkBlogIsIncludedInList(blogToCheck, blogsAtDb)
+}
+
+const checkBlogWasntAddedToDb = async(blogToCheck) => {
+  const blogsAtDb = await helper.blogsInDb()
+  expect(blogsAtDb).toHaveLength(testBlogs.length)
+  checkBlogIsNotIncludedInList(blogToCheck, blogsAtDb)
+}
+
+const checkBlogGotRemovedFromDb = async (blogToCheck) => {
+  const blogsAtDb = await helper.blogsInDb()
+  checkBlogIsNotIncludedInList(blogToCheck, blogsAtDb)
+}
+
+const checkBlogWasntRemovedFromDb = async (blogToCheck) => {
+  const blogsAtDb = await helper.blogsInDb()
+  checkBlogIsIncludedInList(blogToCheck, blogsAtDb)
+}
+
 describe("test /api/blogs endpoint", () => {
 
   describe("test GET-request", () => {
@@ -52,84 +150,21 @@ describe("test /api/blogs endpoint", () => {
 
   describe("test POST-request", () => {
 
-    const loginSuccesfully = async () => {
-      loginUser = testUsers[1]
-      loginInfo = {
-        username: loginUser.username,
-        password: loginUser.password
-      }
-      const response = await api
-        .post("/api/login")
-        .send(loginInfo)
-        .expect(200)
-        .expect("Content-Type", /application\/json/)
-      return { Authorization: "Bearer " + response.body.token }
-    }
-
-    const loginUnsuccesfully = async () => {
-      loginInfo = {
-        username: "madeupname",
-        password: "notvalidusername"
-      }
-      const response = await api
-        .post("/api/login")
-        .send(loginInfo)
-        .expect(401)
-        .expect("Content-Type", /application\/json/)
-      return { Authorization: "Bearer thisIsNotAValidJSONWebToken6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthYXJpamEiLCJpZCI6IjY1ODBhOWEyNTM5NTZjNGVkNWJlNzczZiIsImlhdCI6MTcwMjk0OTYyMX0.dHLjHLIYSnZ2-sNppuzTohTuzPNwCAC8L9kILa5kzBM" }
-    }
     test("blog made by signed in user can be added", async () => {
-      auth = await loginSuccesfully()
-      const newBlog = {
-        title: "Always separate app and server files !",
-        author: "nermineslimane",
-        url: "https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7",
-        likes: 5,
-      }
-
-      await api
-        .post("/api/blogs")
-        .set(auth)
-        .send(newBlog)
-        .expect(201)
-        .expect("Content-Type", /application\/json/)
-
-      const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(testBlogs.length + 1)
-      const pickOnlyImportantFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
-      trimmedBlogs = blogsAtEnd.map(blog => pickOnlyImportantFields(blog))
-      expect(trimmedBlogs).toContainEqual(newBlog)
+      const { auth, blogContent } = await addNewBlog(await loginSuccesfully(), 201)
+      await checkBlogGotAddedToDb(blogContent)
+      // PITÄISIKÖ TARKISTAA MYÖS ETTÄ BLOGI TULEE LISÄTTYÄ KÄYTTÄJÄN ALLE?? VARMAAN!?
+      // tee myöhemmin
     })
     
     test("blog made by user not signed in cannot be added", async () => {
-      auth = await loginUnsuccesfully()
-      const newBlog = {
-        title: "Always separate app and server files !",
-        author: "nermineslimane",
-        url: "https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7",
-        likes: 5
-      }
-
-      await api
-        .post("/api/blogs")
-        .set(auth)
-        .send(newBlog)
-        .expect(401)
-        .expect("Content-Type", /application\/json/)
-
-      const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(testBlogs.length)
-      const pickOnlyImportantFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
-      trimmedBlogs = blogsAtEnd.map(blog => pickOnlyImportantFields(blog))
-      trimmedBlogs.forEach( blog => {
-        expect(Object.keys(blog).sort()).toEqual(Object.keys(newBlog).sort())
-      })
-      expect(trimmedBlogs).not.toContainEqual(newBlog)
+      const { auth, blogContent } = await addNewBlog(await loginUnsuccesfully(), 401)
+      await checkBlogWasntAddedToDb(blogContent)
     })
 
     test("if property 'likes' gets unpopulated, it is defaulted to zero", async () => {
       auth = await loginSuccesfully()
-      const newBlog = {
+      const blogContent = {
         title: "OFFSETTING ANCHOR LINKS WITH A FIXED HEADER",
         author: "Michael Lysiak",
         url: "https://pixelflips.com/blog/anchor-links-with-a-fixed-header",
@@ -138,24 +173,24 @@ describe("test /api/blogs endpoint", () => {
       await api
         .post("/api/blogs")
         .set(auth)
-        .send(newBlog)
+        .send(blogContent)
         .expect(201)
         .expect("Content-Type", /application\/json/)
 
       const blogsAtEnd = await helper.blogsInDb()
-      addedBlog = blogsAtEnd.find(blog => blog.url === newBlog.url)
+      addedBlog = blogsAtEnd.find(blog => blog.url === blogContent.url)
       expect(addedBlog.likes).toBe(0)
     })
 
     test("if property 'title' or 'url' gets unpopulated, request gets '400 Bad Request' as an answer", async () => {
       auth = await loginSuccesfully()
-      const newBlogNoTitle = {
+      const blogContentNoTitle = {
         author: "Geir Arne Hjelle",
         url: "https://realpython.com/python-type-checking/",
         likes: 5,
       }
 
-      const newBlogNoUrl = {
+      const blogContentNoUrl = {
         title: "Python Type Checking (Guide)",
         author: "Geir Arne Hjelle",
         likes: 5,
@@ -164,13 +199,13 @@ describe("test /api/blogs endpoint", () => {
       await api
         .post("/api/blogs")
         .set(auth)
-        .send(newBlogNoTitle)
+        .send(blogContentNoTitle)
         .expect(400)
 
       await api
         .post("/api/blogs")
         .set(auth)
-        .send(newBlogNoUrl)
+        .send(blogContentNoUrl)
         .expect(400)
     })
 
@@ -182,30 +217,50 @@ describe("test /api/blogs/<id> endpoint", () => {
 
   describe("test DELETE-request", () => {
 
-    test("added blog can be deleted", async () => {
-      const blogsAtStart = await helper.blogsInDb()
-      const blogToDelete = blogsAtStart[0]
+    test("user who added a blog can delete it", async () => {
+      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(), 201)
+      await checkBlogGotAddedToDb(blogContent)
 
       await api
-        .delete(`/api/blogs/${blogToDelete.id}`)
+        .delete(`/api/blogs/${addedBlog.id}`)
+        .set(auth)
         .expect(204)
 
-      const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
-      expect(blogsAtEnd).not.toContain(blogToDelete)
+      await checkBlogGotRemovedFromDb(blogContent)
+    })
+
+    test("user who did not add the blog cannot delete it", async () => {
+      const { auth0, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      await checkBlogGotAddedToDb(blogContent)
+      const auth1 = await loginSuccesfully(1)
+
+      await api
+        .delete(`/api/blogs/${addedBlog.id}`)
+        .set(auth1)
+        .expect(401)
+
+      await checkBlogWasntRemovedFromDb(blogContent)
     })
 
     test("invalid id returns '400 Bad Request'", async () => {
+      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      await checkBlogGotAddedToDb(blogContent)
+      
       invalidId = "6578ac92be4ad3b1ff"
       await api
         .delete(`/api/blogs/${invalidId}`)
+        .set(auth)
         .expect(400)
     })
 
     test("non existing id returns '400 Bad Request'", async () => {
+      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      await checkBlogGotAddedToDb(blogContent)
+
       nonExistingBlogId = helper.nonExistingBlogId()
       await api
         .delete(`/api/blogs/${nonExistingBlogId}`)
+        .set(auth)
         .expect(400)
     })
 
