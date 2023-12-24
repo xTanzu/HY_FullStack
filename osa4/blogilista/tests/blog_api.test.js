@@ -27,7 +27,7 @@ const loginSuccesfully = async (userIndx = 0) => {
     .send(loginInfo)
     .expect(200)
     .expect("Content-Type", /application\/json/)
-  return { Authorization: "Bearer " + response.body.token }
+  return { user: response.body.user, authHeader: { Authorization: "Bearer " + response.body.token } }
 }
 
 const loginUnsuccesfully = async () => {
@@ -60,21 +60,21 @@ const randomString = (length) => {
 }
 
 const addNewBlog = async (auth, expectedResCode) => {
-      const blogContent = {
-        title: randomString( randomInt(10,40) ),
-        author: randomString( randomInt(10,40) ),
-        url: randomString( randomInt(20,120) ),
-        likes: randomInt(0,1000),
-      }
+  const blogContent = {
+    title: randomString( randomInt(10,40) ),
+    author: randomString( randomInt(10,40) ),
+    url: randomString( randomInt(20,120) ),
+    likes: randomInt(0,1000),
+  }
 
-      const response = await api
-        .post("/api/blogs")
-        .set(auth)
-        .send(blogContent)
-        .expect(expectedResCode)
-        .expect("Content-Type", /application\/json/)
-      
-      return { auth, blogContent, addedBlog: response.body }
+  const response = await api
+    .post("/api/blogs")
+    .set(auth)
+    .send(blogContent)
+    .expect(expectedResCode)
+    .expect("Content-Type", /application\/json/)
+  
+  return { blogContent, addedBlog: response.body }
 }
 
 const pickOnlyContentFields = ({ author, title, url, likes, }) => ({ author, title, url, likes, })
@@ -98,7 +98,25 @@ const checkBlogGotAddedToDb = async (blogToCheck) => {
   checkBlogIsIncludedInList(blogToCheck, blogsAtDb)
 }
 
-const checkBlogWasntAddedToDb = async(blogToCheck) => {
+const getBlogUnderUser = async (blogToGet, userToGet) => {
+  const response = await api
+    .get("/api/users")
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+
+  const blogsUnderUser = response.body
+    .find(user => user.id === userToGet.id)
+    .blogs
+
+  return blogsUnderUser.find(blog => blog.id === blogToGet.id)
+}
+
+const checkBlogGotAddedUnderUser = async (blogToCheck, userToCheck) => {
+  const matchingBlog = await getBlogUnderUser(blogToCheck, userToCheck)
+  expect(matchingBlog).toBeDefined()
+}
+
+const checkBlogWasntAddedToDb = async (blogToCheck) => {
   const blogsAtDb = await helper.blogsInDb()
   expect(blogsAtDb).toHaveLength(testBlogs.length)
   checkBlogIsNotIncludedInList(blogToCheck, blogsAtDb)
@@ -107,6 +125,11 @@ const checkBlogWasntAddedToDb = async(blogToCheck) => {
 const checkBlogGotRemovedFromDb = async (blogToCheck) => {
   const blogsAtDb = await helper.blogsInDb()
   checkBlogIsNotIncludedInList(blogToCheck, blogsAtDb)
+}
+
+const checkBlogGotRemovedFromUser = async (blogToCheck, userToCheck) => {
+  const matchingBlog = await getBlogUnderUser(blogToCheck, userToCheck)
+  expect(matchingBlog).not.toBeDefined()
 }
 
 const checkBlogWasntRemovedFromDb = async (blogToCheck) => {
@@ -151,19 +174,19 @@ describe("test /api/blogs endpoint", () => {
   describe("test POST-request", () => {
 
     test("blog made by signed in user can be added", async () => {
-      const { auth, blogContent } = await addNewBlog(await loginSuccesfully(), 201)
+      const { user, authHeader } = await loginSuccesfully()
+      const { blogContent, addedBlog } = await addNewBlog(authHeader, 201)
       await checkBlogGotAddedToDb(blogContent)
-      // PITÄISIKÖ TARKISTAA MYÖS ETTÄ BLOGI TULEE LISÄTTYÄ KÄYTTÄJÄN ALLE?? VARMAAN!?
-      // tee myöhemmin
+      await checkBlogGotAddedUnderUser(addedBlog, user)
     })
     
     test("blog made by user not signed in cannot be added", async () => {
-      const { auth, blogContent } = await addNewBlog(await loginUnsuccesfully(), 401)
+      const { blogContent } = await addNewBlog(await loginUnsuccesfully(), 401)
       await checkBlogWasntAddedToDb(blogContent)
     })
 
     test("if property 'likes' gets unpopulated, it is defaulted to zero", async () => {
-      auth = await loginSuccesfully()
+      const { authHeader } = await loginSuccesfully()
       const blogContent = {
         title: "OFFSETTING ANCHOR LINKS WITH A FIXED HEADER",
         author: "Michael Lysiak",
@@ -172,7 +195,7 @@ describe("test /api/blogs endpoint", () => {
 
       await api
         .post("/api/blogs")
-        .set(auth)
+        .set(authHeader)
         .send(blogContent)
         .expect(201)
         .expect("Content-Type", /application\/json/)
@@ -183,7 +206,7 @@ describe("test /api/blogs endpoint", () => {
     })
 
     test("if property 'title' or 'url' gets unpopulated, request gets '400 Bad Request' as an answer", async () => {
-      auth = await loginSuccesfully()
+      const { authHeader } = await loginSuccesfully()
       const blogContentNoTitle = {
         author: "Geir Arne Hjelle",
         url: "https://realpython.com/python-type-checking/",
@@ -198,13 +221,13 @@ describe("test /api/blogs endpoint", () => {
 
       await api
         .post("/api/blogs")
-        .set(auth)
+        .set(authHeader)
         .send(blogContentNoTitle)
         .expect(400)
 
       await api
         .post("/api/blogs")
-        .set(auth)
+        .set(authHeader)
         .send(blogContentNoUrl)
         .expect(400)
     })
@@ -218,49 +241,55 @@ describe("test /api/blogs/<id> endpoint", () => {
   describe("test DELETE-request", () => {
 
     test("user who added a blog can delete it", async () => {
-      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(), 201)
+      const { user, authHeader } = await loginSuccesfully()
+      const { blogContent, addedBlog } = await addNewBlog(authHeader, 201)
       await checkBlogGotAddedToDb(blogContent)
 
       await api
         .delete(`/api/blogs/${addedBlog.id}`)
-        .set(auth)
+        .set(authHeader)
         .expect(204)
 
       await checkBlogGotRemovedFromDb(blogContent)
+      await checkBlogGotRemovedFromUser(addedBlog, user)
     })
 
     test("user who did not add the blog cannot delete it", async () => {
-      const { auth0, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      let { authHeader } = await loginSuccesfully()
+      const { blogContent, addedBlog } = await addNewBlog(authHeader, 201)
       await checkBlogGotAddedToDb(blogContent)
-      const auth1 = await loginSuccesfully(1)
+      // Notice that authHeader gets reset here to a different one
+      ;({ authHeader } = await loginSuccesfully(1))
 
       await api
         .delete(`/api/blogs/${addedBlog.id}`)
-        .set(auth1)
+        .set(authHeader)
         .expect(401)
 
       await checkBlogWasntRemovedFromDb(blogContent)
     })
 
     test("invalid id returns '400 Bad Request'", async () => {
-      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      const { authHeader } = await loginSuccesfully()
+      const { blogContent, addedBlog } = await addNewBlog(authHeader, 201)
       await checkBlogGotAddedToDb(blogContent)
       
       invalidId = "6578ac92be4ad3b1ff"
       await api
         .delete(`/api/blogs/${invalidId}`)
-        .set(auth)
+        .set(authHeader)
         .expect(400)
     })
 
     test("non existing id returns '400 Bad Request'", async () => {
-      const { auth, blogContent, addedBlog } = await addNewBlog(await loginSuccesfully(0), 201)
+      const { authHeader } = await loginSuccesfully()
+      const { blogContent } = await addNewBlog(authHeader, 201)
       await checkBlogGotAddedToDb(blogContent)
 
       nonExistingBlogId = helper.nonExistingBlogId()
       await api
         .delete(`/api/blogs/${nonExistingBlogId}`)
-        .set(auth)
+        .set(authHeader)
         .expect(400)
     })
 

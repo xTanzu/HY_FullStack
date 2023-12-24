@@ -187,7 +187,7 @@ describe("test /api/login endpoint", () => {
         .expect("Content-Type", /application\/json/)
 
       const pickOnlyNames = ({ username, name }) => ({ username, name })
-      expect(pickOnlyNames(response.body)).toEqual(pickOnlyNames(loginUser))
+      expect(pickOnlyNames(response.body.user)).toEqual(pickOnlyNames(loginUser))
       expect(response.body.token).toBeDefined()
     })
 
