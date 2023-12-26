@@ -1,4 +1,6 @@
 const logger = require("./logger")
+const jwt = require("jsonwebtoken")
+const User = require("../models/user")
 
 const requestLogger = (req, res, next) => {
   logger.info("Method:", req.method)
@@ -29,8 +31,8 @@ const errorHandler = (err, req, res, next) => {
     const key = Object.keys(err.keyValue)[0]
     const value = err.keyValue[key]
     return res.status(400).json({ error: `"${value}" as ${key} is already taken` })
-  } else if (err.name === "JsonWebTokenError") {
-    return res.status(401).json({ error: "JSON webtoken not matching" })
+  } else if (err.name === "AuthorizationError") {
+    return res.status(401).json({ error: "user not identified, authorization required" })
   }
 
   next(err)
@@ -46,10 +48,28 @@ const bearerTokenExtractor = (req, res, next) => {
   next()
 }
 
+const userExtractor = async (req, res, next) => {
+  if (req.token === null) {
+    req.user = null
+    // return response.status(401).json({ error: "token missing" })
+    next()
+  }
+  try {
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    req.user = await User.findById(decodedToken.id)
+    next()
+  } catch(exception) {
+    logger.error("cannot extract user from token")
+    req.user = null
+    next()
+  }
+}
+
 module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  bearerTokenExtractor
+  bearerTokenExtractor,
+  userExtractor
 }
 

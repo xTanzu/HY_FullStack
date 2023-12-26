@@ -2,6 +2,7 @@ const blogsRouter = require("express").Router()
 const User = require("../models/user")
 const Blog = require("../models/blog")
 const jwt = require("jsonwebtoken")
+const AuthorizationError = require("../errors/AuthorizationError.js")
 
 
 blogsRouter.get("/", async (request, response, next) => {
@@ -18,11 +19,11 @@ blogsRouter.get("/", async (request, response, next) => {
 blogsRouter.post("/", async (request, response, next) => {
   try {
     const { title, author, url, likes } = { ...request.body }
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" })
+    const user = request.user
+    if (!user) {
+      // return response.status(401).json({ error: "user not identified, authorization required" })
+      throw new AuthorizationError()
     }
-    const user = await User.findById(decodedToken.id)
     const blog = new Blog({
       title,
       author,
@@ -43,11 +44,11 @@ blogsRouter.post("/", async (request, response, next) => {
 
 blogsRouter.delete("/:id", async (request, response, next) => {
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" })
+    const user = request.user
+    if (!user) {
+      throw new AuthorizationError()
+      // return response.status(401).json({ error: "user not identified, authorization required" })
     }
-    const user = await User.findById(decodedToken.id)
     const blog = await Blog.findById(request.params.id)
     if (!(blog.user.toString() === user.id)) {
       return response.status(401).json({ error: "no persmission to delete" })
