@@ -4,12 +4,12 @@ import LoginForm from "./components/LoginForm"
 import BlogListing from "./components/BlogListing"
 
 const App = () => {
-  const [loggedUser, setLoggedUser] = useState(null)
+  const [loggedInUser, setLoggedInUser] = useState(null)
 
   return (
     <div>
-      { !loggedUser && <LoginForm setLoggedUser={setLoggedUser} /> } 
-      { loggedUser && <BlogListing loggedUser={loggedUser} /> }
+      { !loggedInUser && <LoginForm setLoggedInUser={setLoggedInUser} /> } 
+      { loggedInUser && <BlogListing loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} /> }
     </div>
   )
 }

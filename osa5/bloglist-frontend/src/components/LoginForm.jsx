@@ -1,8 +1,8 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ErrorMessage, SuccessMessage } from "./Notification"
 import loginService from "../services/login"
 
-const LoginForm = ({ setLoggedUser }) => {
+const LoginForm = ({ setLoggedInUser }) => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
@@ -10,6 +10,15 @@ const LoginForm = ({ setLoggedUser }) => {
   const [successMessage, setSuccessMessage] = useState(null)
   const errorTimeoutRef = useRef(null)
   const successTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    const loggedInUserJSON = window.localStorage.getItem("loggedInUser")
+    if (loggedInUserJSON) {
+      const user = JSON.parse(loggedInUserJSON)
+      setLoggedInUser(user)
+      // set the noteService token
+    }
+  }, [])
 
   const flashError = message => {
     clearTimeout(errorTimeoutRef.current)
@@ -33,7 +42,11 @@ const LoginForm = ({ setLoggedUser }) => {
       const user = await loginService.login({
         username, password
       })
-      setLoggedUser(user)
+      window.localStorage.setItem(
+        "loggedInUser", JSON.stringify(user)
+      )
+      setLoggedInUser(user)
+      // set the noteService token
       flashSuccess("login succesful")
       setUsername("")
       setPassword("")

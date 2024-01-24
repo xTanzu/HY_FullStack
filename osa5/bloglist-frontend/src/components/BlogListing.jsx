@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import blogService from "../services/blogs"
 import Blog from "./Blog"
 
-const BlogListing = ({ loggedUser }) => {
+const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
   const [blogs, setBlogs] = useState([])
 
   useEffect(() => {
@@ -12,11 +12,19 @@ const BlogListing = ({ loggedUser }) => {
     )  
   }, [])
 
+  const logoutHandler = () => {
+    setLoggedInUser(null)
+    window.localStorage.removeItem("loggedInUser")
+  }
+
   return (
     <div className="blogListing">
       <h2>blogs</h2>
       <br/>
-      <div>{loggedUser ? `${loggedUser.user.name} logged in` : ""}</div>      
+      <div>
+        {loggedInUser ? `${loggedInUser.user.name} logged in` : ""}
+        <button onClick={logoutHandler}>logout</button>
+      </div>
       <br/>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
