@@ -46,16 +46,16 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
 
   const addNewBlog = async ({ title, author, url }) => {
     const blog = { title, author, url }
-    // remove
-    console.log(blog)
+
     try {
       const response = await blogService.post(blog)
       updateBlogs()
-      flashSuccess("blog added")
+      flashSuccess(`a new blog "${blog.title}" by ${blog.author} was added`)
     } catch(exception) {
-      // throw exception
       if (exception.response.status === 401) {
         flashError("not permitted")
+      } else if (exception.response.status === 400) {
+        flashError(exception.response.data.error)
       } else {
         throw exception
       }
