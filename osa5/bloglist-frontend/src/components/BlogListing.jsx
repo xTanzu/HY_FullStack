@@ -1,35 +1,85 @@
-import { useState, useEffect } from "react"
+import { useState, useRef, useEffect } from "react"
 
 import blogService from "../services/blogs"
 import Blog from "./Blog"
+import BlogForm from "./BlogForm"
+import { ErrorMessage, SuccessMessage } from "./Notification"
 
 const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
   const [blogs, setBlogs] = useState([])
 
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
+  const errorTimeoutRef = useRef(null)
+  const successTimeoutRef = useRef(null)
+
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    updateBlogs()
   }, [])
+
+  const updateBlogs = async () => {
+    const blogs = await blogService.getAll()
+    setBlogs(blogs)
+  }
 
   const logoutHandler = () => {
     setLoggedInUser(null)
     window.localStorage.removeItem("loggedInUser")
   }
 
+  const flashError = message => {
+    clearTimeout(errorTimeoutRef.current)
+    setErrorMessage(message)
+    errorTimeoutRef.current = setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+
+  const flashSuccess = message => {
+    clearTimeout(successTimeoutRef.current)
+    setSuccessMessage(message)
+    successTimeoutRef.current = setTimeout(() => {
+      setSuccessMessage(null)
+    }, 5000)
+  }
+
+
+  const addNewBlog = async ({ title, author, url }) => {
+    const blog = { title, author, url }
+    // remove
+    console.log(blog)
+    try {
+      const response = await blogService.post(blog)
+      updateBlogs()
+      flashSuccess("blog added")
+    } catch(exception) {
+      // throw exception
+      if (exception.response.status === 401) {
+        flashError("not permitted")
+      } else {
+        throw exception
+      }
+    }
+  }
+
   return (
-    <div className="blogListing">
-      <h2>blogs</h2>
-      <br/>
-      <div>
-        {loggedInUser ? `${loggedInUser.user.name} logged in` : ""}
-        <button onClick={logoutHandler}>logout</button>
+    <>
+      <div className="blogListing">
+        <h2>blogs</h2>
+        <br/>
+        <div>
+          {loggedInUser ? `${loggedInUser.user.name} logged in` : ""}
+          <button onClick={logoutHandler}>logout</button>
+        </div>
+        <br/>
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} />
+        )}
       </div>
-      <br/>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-    </div>
+      <BlogForm addNewBlog={addNewBlog} />
+      <ErrorMessage message={errorMessage} />
+      <SuccessMessage message={successMessage} />
+    </>
   )
 }
 

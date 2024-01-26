@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react"
 import { ErrorMessage, SuccessMessage } from "./Notification"
+
 import loginService from "../services/login"
+import blogService from "../services/blogs"
 
 const LoginForm = ({ setLoggedInUser }) => {
   const [username, setUsername] = useState("")
@@ -16,7 +18,7 @@ const LoginForm = ({ setLoggedInUser }) => {
     if (loggedInUserJSON) {
       const user = JSON.parse(loggedInUserJSON)
       setLoggedInUser(user)
-      // set the noteService token
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -46,7 +48,7 @@ const LoginForm = ({ setLoggedInUser }) => {
         "loggedInUser", JSON.stringify(user)
       )
       setLoggedInUser(user)
-      // set the noteService token
+      blogService.setToken(user.token)
       flashSuccess("login succesful")
       setUsername("")
       setPassword("")
