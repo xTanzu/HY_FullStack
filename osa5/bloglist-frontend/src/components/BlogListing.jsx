@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import blogService from "../services/blogs"
 import Blog from "./Blog"
 import BlogForm from "./BlogForm"
+import Togglable from "./Togglable.jsx"
 import { ErrorMessage, SuccessMessage } from "./Notification"
 
 const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
@@ -76,7 +77,9 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
           <Blog key={blog.id} blog={blog} />
         )}
       </div>
-      <BlogForm addNewBlog={addNewBlog} />
+      <Togglable buttonLabel="New Note">
+        <BlogForm addNewBlog={addNewBlog} />
+      </Togglable>      
       <ErrorMessage message={errorMessage} />
       <SuccessMessage message={successMessage} />
     </>
