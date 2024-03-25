@@ -63,12 +63,29 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
     }
   }
 
-  const handleLike = async ({ blog }) => {
+  const handleLike = async (blog) => {
     try {
       const response = await blogService.like(blog)
       updateBlogs()
       flashSuccess(`liked blog "${blog.title}" by ${blog.author}`)
     } catch(exception) {
+      if (exception.response.status === 401) {
+        flashError("not permitted")
+      } else if (exception.response.status === 400) {
+        flashError(exception.response.data.error)
+      } else {
+        throw exception
+      }
+    }
+  }
+
+  const handleRemove = async (blog) => {
+    try {
+      const response = await blogService.remove(blog)
+      updateBlogs()
+      flashSuccess(`Deleted blog "${blog.title}" by ${blog.author}`)
+    } catch(exception) {
+      console.log(exception)
       if (exception.response.status === 401) {
         flashError("not permitted")
       } else if (exception.response.status === 400) {
@@ -90,7 +107,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
         </div>
         <br/>
         {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} handleLike={handleLike} />
+          <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} handleLike={handleLike} handleRemove={handleRemove} />
         )}
       </div>
       <Togglable buttonLabel="New Note">
