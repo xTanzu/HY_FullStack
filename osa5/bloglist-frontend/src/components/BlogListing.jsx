@@ -63,6 +63,22 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
     }
   }
 
+  const handleLike = async ({ blog }) => {
+    try {
+      const response = await blogService.like(blog)
+      updateBlogs()
+      flashSuccess(`liked blog "${blog.title}" by ${blog.author}`)
+    } catch(exception) {
+      if (exception.response.status === 401) {
+        flashError("not permitted")
+      } else if (exception.response.status === 400) {
+        flashError(exception.response.data.error)
+      } else {
+        throw exception
+      }
+    }
+  }
+
   return (
     <>
       <div className="blogListing">
@@ -74,7 +90,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
         </div>
         <br/>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog} handleLike={handleLike} />
         )}
       </div>
       <Togglable buttonLabel="New Note">

@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, handleLike }) => {
 
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -17,7 +17,6 @@ const Blog = ({ blog }) => {
   const paragraphStyle = {
     margin: 4,
   }
-  console.log(blog)
 
   return (
     <div className="blogItemWrapper" style={wrapperStyle}>
@@ -25,8 +24,9 @@ const Blog = ({ blog }) => {
         {blog.title} {blog.author}
         <button onClick={toggleExpand}>{isExpanded ? "hide" : "show"}</button>
       </p>
+      
       {isExpanded && <p style={paragraphStyle}>{blog.url}</p>}
-      {isExpanded && <p style={paragraphStyle}>likes: {blog.likes} <button>like</button></p>}
+      {isExpanded && <p style={paragraphStyle}>likes: {blog.likes} <button onClick={() => {handleLike({blog})}}>like</button> </p>}
       {isExpanded && <p style={paragraphStyle}>{blog.user.name}</p>}
     </div>  
   )

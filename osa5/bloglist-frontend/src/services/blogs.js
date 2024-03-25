@@ -20,4 +20,17 @@ const post = async blog => {
   return response.data
 }
 
-export default { setToken, getAll, post }
+const like = async blog => {
+  const config = {
+    headers: { Authorization: token }
+  }
+  blog = {
+    ...blog,
+    likes: blog.likes + 1,
+    user: blog.user.id
+  }
+  const response = await axios.put(`${baseUrl}/${blog.id}`, blog, config)
+  return response.data
+}
+
+export default { setToken, getAll, post, like }
