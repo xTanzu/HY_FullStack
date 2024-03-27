@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useImperativeHandle, forwardRef } from 'react'
 
 
-const Togglable = ({ buttonLabel, children }) => {
+const Togglable = forwardRef(({ buttonLabel, children }, ref) => {
 
   const [visible, setVisible] = useState(false)
 
@@ -16,6 +16,12 @@ const Togglable = ({ buttonLabel, children }) => {
     setVisible(!visible)
   }
 
+  useImperativeHandle(ref, () => {
+    return {
+      toggleVisible
+    }
+  })
+
   return (
     <div className="toggleWrapper">
       <div style={showWhenVisibleStyle}>
@@ -24,6 +30,6 @@ const Togglable = ({ buttonLabel, children }) => {
       <button onClick={toggleVisible} >{ visible ? "cancel" : buttonLabel }</button>
     </div>
   )
-}
+})
 
 export default Togglable

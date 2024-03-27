@@ -13,6 +13,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
   const [successMessage, setSuccessMessage] = useState(null)
   const errorTimeoutRef = useRef(null)
   const successTimeoutRef = useRef(null)
+  const blogFormWrapper = useRef()
 
   useEffect(() => {
     updateBlogs()
@@ -47,19 +48,13 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
 
   const addNewBlog = async ({ title, author, url }) => {
     const blog = { title, author, url }
-
     try {
       const response = await blogService.post(blog)
       updateBlogs()
+      blogFormWrapper.current.toggleVisible()
       flashSuccess(`a new blog "${blog.title}" by ${blog.author} was added`)
     } catch(exception) {
-      if (exception.response.status === 401) {
-        flashError("not permitted")
-      } else if (exception.response.status === 400) {
-        flashError(exception.response.data.error)
-      } else {
-        throw exception
-      }
+      handleAxiosException(exception)
     }
   }
 
@@ -69,13 +64,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
       updateBlogs()
       flashSuccess(`liked blog "${blog.title}" by ${blog.author}`)
     } catch(exception) {
-      if (exception.response.status === 401) {
-        flashError("not permitted")
-      } else if (exception.response.status === 400) {
-        flashError(exception.response.data.error)
-      } else {
-        throw exception
-      }
+      handleAxiosException(exception)
     }
   }
 
@@ -85,14 +74,24 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
       updateBlogs()
       flashSuccess(`Deleted blog "${blog.title}" by ${blog.author}`)
     } catch(exception) {
-      console.log(exception)
-      if (exception.response.status === 401) {
+      handleAxiosException(exception)
+    }
+  }
+
+  const handleAxiosException = (exception) => {
+    const handleResponseErrorCodes = (response) => {
+      if ( response.status === 401) {
         flashError("not permitted")
-      } else if (exception.response.status === 400) {
-        flashError(exception.response.data.error)
+      } else if (response.status === 400) {
+        flashError(response.data.error)
       } else {
         throw exception
       }
+    }
+    if (exception.response) {
+      handleResponseErrorCodes(exception.response)
+    } else {
+      throw exception
     }
   }
 
@@ -110,7 +109,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
           <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} handleLike={handleLike} handleRemove={handleRemove} />
         )}
       </div>
-      <Togglable buttonLabel="New Note">
+      <Togglable ref={blogFormWrapper} buttonLabel="New Note">
         <BlogForm addNewBlog={addNewBlog} />
       </Togglable>      
       <ErrorMessage message={errorMessage} />
