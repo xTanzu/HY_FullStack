@@ -19,17 +19,17 @@ const SuccessMessage = ({ message }) => {
 }
 
 const NotificationMessage = ({ message, style }) => {
-  const baseStyle = { 
-    display: message ? "block" : "none", 
-    padding: "10px", 
-    margin: "10px", 
-    borderWidth: "2px", 
-    borderColor: "black", 
-    borderRadius: "10px", 
-    fontFamily: "Helvetica", 
-    fontWeight: "bold", 
-    background: "grey", 
-    color: "white" 
+  const baseStyle = {
+    display: message ? "block" : "none",
+    padding: "10px",
+    margin: "10px",
+    borderWidth: "2px",
+    borderColor: "black",
+    borderRadius: "10px",
+    fontFamily: "Helvetica",
+    fontWeight: "bold",
+    background: "grey",
+    color: "white"
   }
   const compoundStyle = { ...baseStyle, ...style }
 

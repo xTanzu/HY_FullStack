@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+import PropTypes from "prop-types"
 import { ErrorMessage, SuccessMessage } from "./Notification"
 
 import loginService from "../services/login"
@@ -72,13 +73,17 @@ const LoginForm = ({ setLoggedInUser }) => {
         <div>
           <label htmlFor="password_field">password</label>
           <input id="password_field" type="password" value={password} name="password" onChange={({ target }) => setPassword(target.value)} />
-        </div>        
+        </div>
         <button type="submit">login</button>
       </form>
       <ErrorMessage message={errorMessage} />
       <SuccessMessage message={successMessage} />
     </div>
   )
+}
+
+LoginForm.propTypes = {
+  setLoggedInUser: PropTypes.func.isRequired,
 }
 
 export default LoginForm

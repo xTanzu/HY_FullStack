@@ -18,8 +18,10 @@ const BlogForm = ({ addNewBlog }) => {
       author: newBlogAuthor,
       url: newBlogURL
     }
-    await addNewBlog(blog)
-    clearBlogForm()
+    const response = await addNewBlog(blog)
+    if (response.success === true) {
+      clearBlogForm()
+    }
   }
 
   return (

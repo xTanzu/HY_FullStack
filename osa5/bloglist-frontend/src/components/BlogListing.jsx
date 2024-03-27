@@ -53,8 +53,11 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
       updateBlogs()
       blogFormWrapper.current.toggleVisible()
       flashSuccess(`a new blog "${blog.title}" by ${blog.author} was added`)
+      return { success: true }
     } catch(exception) {
       handleAxiosException(exception)
+      // Miten tämän voisi muuttaa promiseksi
+      return { success: false }
     }
   }
 
@@ -111,7 +114,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
       </div>
       <Togglable ref={blogFormWrapper} buttonLabel="New Note">
         <BlogForm addNewBlog={addNewBlog} />
-      </Togglable>      
+      </Togglable>
       <ErrorMessage message={errorMessage} />
       <SuccessMessage message={successMessage} />
     </>
