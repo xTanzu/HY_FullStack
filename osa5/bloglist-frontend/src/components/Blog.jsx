@@ -34,14 +34,14 @@ const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
 
   return (
     <div className="blogItemWrapper" style={wrapperStyle}>
-      <p style={paragraphStyle}>
+      <p data-testid="titleAndAuthor" style={paragraphStyle}>
         {blog.title} {blog.author}
         <button onClick={toggleExpand}>{isExpanded ? "hide" : "show"}</button>
       </p>
 
-      {isExpanded && <p style={paragraphStyle}>{blog.url}</p>}
-      {isExpanded && <p style={paragraphStyle}>likes: {blog.likes} <button onClick={() => {handleLike(blog)}}>like</button> </p>}
-      {isExpanded && <p style={paragraphStyle}>{blog.user.name}</p>}
+      {isExpanded && <p data-testid="url" style={paragraphStyle}>{blog.url}</p>}
+      {isExpanded && <p data-testid="likes" style={paragraphStyle}>likes: {blog.likes} <button onClick={() => {handleLike(blog)}}>like</button> </p>}
+      {isExpanded && <p data-testid="user" style={paragraphStyle}>{blog.user.name}</p>}
       {isExpanded && usersOwn && <button style={removeButtonStyle} onClick={confirmRemove}>remove</button>}
     </div>
   )
