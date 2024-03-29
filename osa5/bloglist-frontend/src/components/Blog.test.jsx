@@ -21,15 +21,19 @@ describe("<Blog />", () => {
     user: loggedInUser.user,
   }
 
-  const mockLikeHandler = vi.fn()
-  const mockRemoveHandler = vi.fn()
+  let mockLikeHandler
+  let mockRemoveHandler
 
   let blogElement
+  let user
 
   beforeEach(() => {
+    mockLikeHandler = vi.fn()
+    mockRemoveHandler = vi.fn()
     blogElement = render(
       <Blog blog={testContent} loggedInUser={loggedInUser} handleLike={mockLikeHandler} handleRemove={mockRemoveHandler} />
-    ).container
+    )
+    user = userEvent.setup()
   })
 
   test("initially Blog renders 'title' and 'author', but not 'URL' and 'likes'", () => {
@@ -44,8 +48,7 @@ describe("<Blog />", () => {
   })
 
   test("after clicking the show button 'title', 'author', 'URL' and 'likes' are rendered", async () => {
-    const user = userEvent.setup()
-    const showButton = screen.getByText("show")
+    const showButton = screen.getByTestId("toggleShowBtn")
     await user.click(showButton)
     const titlePara = screen.getByTestId("titleAndAuthor")
     const urlPara = screen.getByTestId("url")
@@ -56,6 +59,17 @@ describe("<Blog />", () => {
     expect(urlPara).toHaveTextContent(testContent.url)
     expect(likesPara).toHaveTextContent(testContent.likes.toString())
     expect(userPara).toHaveTextContent(testContent.user.name)
+  })
+
+  test("clicking Blog-elements 'like' button twice makes two calls to the like eventHandler", async () => {
+    const showButton = screen.getByTestId("toggleShowBtn")
+    await user.click(showButton)
+    const likeButton = screen.getByTestId("likeBtn")
+    await user.click(likeButton)
+    await user.click(likeButton)
+    // Kumpikin näistä toimii
+    expect(mockLikeHandler).toHaveBeenCalledTimes(2)
+    expect(mockLikeHandler.mock.calls).toHaveLength(2)
   })
 
 })
