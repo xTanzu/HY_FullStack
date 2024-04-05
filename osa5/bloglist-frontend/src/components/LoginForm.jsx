@@ -68,11 +68,11 @@ const LoginForm = ({ setLoggedInUser }) => {
       <form onSubmit={ handleLogin }>
         <div>
           <label htmlFor="username_field">username</label>
-          <input id="username_field" type="text" value={username} name="username" onChange={({ target }) => setUsername(target.value)} />
+          <input id="username_field" data-testid="username_field" type="text" value={username} name="username" onChange={({ target }) => setUsername(target.value)} />
         </div>
         <div>
           <label htmlFor="password_field">password</label>
-          <input id="password_field" type="password" value={password} name="password" onChange={({ target }) => setPassword(target.value)} />
+          <input id="password_field" data-testid="password_field" type="password" value={password} name="password" onChange={({ target }) => setPassword(target.value)} />
         </div>
         <button type="submit">login</button>
       </form>

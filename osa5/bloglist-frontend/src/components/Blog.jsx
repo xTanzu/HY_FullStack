@@ -5,7 +5,7 @@ const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const usersOwn = loggedInUser.user.id === blog.user.id
+  const usersOwn = blog.user ? loggedInUser.user.id === blog.user.id : false
 
   const toggleExpand = event => {
     setIsExpanded(!isExpanded)
@@ -41,7 +41,7 @@ const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
 
       {isExpanded && <p data-testid="url" style={paragraphStyle}>{blog.url}</p>}
       {isExpanded && <p data-testid="likes" style={paragraphStyle}>likes: {blog.likes} <button data-testid="likeBtn" onClick={() => {handleLike(blog)}}>like</button> </p>}
-      {isExpanded && <p data-testid="user" style={paragraphStyle}>{blog.user.name}</p>}
+      {isExpanded && <p data-testid="user" style={paragraphStyle}>{blog.user ? blog.user.name : "user not defined"}</p>}
       {isExpanded && usersOwn && <button style={removeButtonStyle} onClick={confirmRemove}>remove</button>}
     </div>
   )
