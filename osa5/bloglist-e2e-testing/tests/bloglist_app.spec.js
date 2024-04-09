@@ -1,28 +1,26 @@
 const { describe, test, expect, beforeEach } = require("@playwright/test")
 
-const correctUsername = "mattimeika"
-const correctPassword = "salainensana1"
-
+const userCredentials = {
+  username: "mattimeika",
+  name: "Matti Meikäläinen",
+  password: "salainensana1"
+}
 
 const resetBackendAndInsertTestData = async (request) => {
   await request.post("/api/testing/reset")
   await request.post("/api/users", {
-    data: {
-      username: "mattimeika",
-      name: "Matti Meikäläinen",
-      password: "salainensana1"
-    }
+    data: userCredentials
   })
 }
 
 const loginWith = async (page, username, password) => {
   // Vaihtoehto 1
-  // await page.getByRole("textbox").first().fill(correctUsername)
+  // await page.getByRole("textbox").first().fill(username)
   // await page.getByRole("textbox").last().fill(correctPassword)
 
   // Vaihtoehto 2
   // const textboxes = await page.getByRole("textbox").all()
-  // await textboxes[0].fill(correctUsername)
+  // await textboxes[0].fill(username)
   // await textboxes[1].fill(correctPassword)
 
   // Vaihtoehto 3
@@ -41,6 +39,23 @@ const createBlog = async (page, title, author, url) => {
   await page.locator(".blogItemWrapper").filter({ hasText: title }).waitFor()
 }
 
+const expectBlogToBeListed = async (page, content, user) => {
+  const blogs = await page.locator(".blogItemWrapper")
+  const addedBlog = blogs.filter({ hasText: content.title })
+  await expect(addedBlog).toBeVisible()
+  await expect(addedBlog).toContainText(content.title)
+  await expect(addedBlog).toContainText(content.author)
+  // To be not visible before expanding,
+  await expect(addedBlog).not.toContainText(content.url)
+  await expect(addedBlog).not.toContainText("likes:")
+  await expect(addedBlog).not.toContainText(user.name)
+  // but visible after
+  await addedBlog.getByRole("button", { name: "show" }).click()
+  await expect(addedBlog).toContainText(content.url)
+  await expect(addedBlog).toContainText("likes: 0")
+  await expect(addedBlog).toContainText(user.name)
+}
+
 describe("Bloglist app", () => {
 
   beforeEach(async ({ page, request }) => {
@@ -57,8 +72,8 @@ describe("Bloglist app", () => {
   })
 
   test("login with correct credentials succeeds", async ({ page }) => {
-    loginWith(page, correctUsername, correctPassword)
-    await expect(page.getByText("Matti Meikäläinen logged in")).toBeVisible()
+    loginWith(page, userCredentials.username, userCredentials.password)
+    await expect(page.getByText(`${userCredentials.name} logged in`)).toBeVisible()
   })
 
   test("login with incorrect credentials does not succeed", async ({ page }) => {
@@ -70,28 +85,38 @@ describe("Bloglist app", () => {
 
   describe("when logged in", () => {
 
+    const content = {
+      title: "FP vs. OO",
+      author: "Robert C. Martin",
+      url: "https://blog.cleancoder.com/uncle-bob/2018/04/13/FPvsOO.html",
+    }
+
     beforeEach(async ({ page }) => {
-      await loginWith(page, correctUsername, correctPassword)
+      await loginWith(page, userCredentials.username, userCredentials.password)
     })
 
     test("a blog can be created", async ({ page }) => {
-      const title = "FP vs. OO"
-      const author = "Robert C. Martin"
-      const url = "https://blog.cleancoder.com/uncle-bob/2018/04/13/FPvsOO.html"
-      await createBlog(page, title, author, url)
-      const blogs = await page.locator(".blogItemWrapper")
-      expect(await blogs.all()).toHaveLength(1)
-      const addedBlog = blogs.filter({ hasText: title })
-      await expect(addedBlog).toBeVisible()
-      await expect(addedBlog).toContainText(title)
-      await expect(addedBlog).toContainText(author)
-      await expect(addedBlog).not.toContainText(url)
-      await expect(addedBlog).not.toContainText("likes:")
-      await expect(addedBlog).not.toContainText("Matti Meikäläinen")
-      await addedBlog.getByRole("button", { name: "show" }).click()
-      await expect(addedBlog).toContainText(url)
-      await expect(addedBlog).toContainText("likes: 0")
-      await expect(addedBlog).toContainText("Matti Meikäläinen")
+      await createBlog(page, ...Object.values(content))
+      await expectBlogToBeListed(page, content, userCredentials)
+    })
+
+    describe("when blog has been added", () => {
+
+      beforeEach(async ({ page }) => {
+        createBlog(page, ...Object.values(content))
+      })
+
+      test.only("blog can be liked", async ({ page }) => {
+        const addedBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
+        await expect(addedBlog).toBeVisible()
+        const showButton = await addedBlog.getByRole("button", { name: "show" })
+        await showButton.click()
+        await expect(addedBlog).toContainText("likes: 0")
+        const likeButton = await addedBlog.getByRole("button", { name: "like" })
+        await likeButton.click()
+        await expect(addedBlog).toContainText("likes: 1")
+      })
+
     })
 
   })
