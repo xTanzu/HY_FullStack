@@ -35,7 +35,7 @@ const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
   return (
     <div className="blogItemWrapper" style={wrapperStyle}>
       <p data-testid="titleAndAuthor" style={paragraphStyle}>
-        {blog.title} {blog.author}
+        {blog.title}, {blog.author}
         <button data-testid="toggleShowBtn" onClick={toggleExpand}>{isExpanded ? "hide" : "show"}</button>
       </p>
 

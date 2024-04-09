@@ -112,7 +112,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
           <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} handleLike={handleLike} handleRemove={handleRemove} />
         )}
       </div>
-      <Togglable ref={blogFormWrapper} buttonLabel="New Note">
+      <Togglable ref={blogFormWrapper} buttonLabel="New Blog">
         <BlogForm addNewBlog={addNewBlog} />
       </Togglable>
       <ErrorMessage message={errorMessage} />
