@@ -30,6 +30,11 @@ const loginWith = async (page, username, password) => {
   await page.getByRole("button", { name: "login" }).click()
 }
 
+const expandBlog = async (blog) => {
+  const showButton = await blog.getByRole("button", { name: "show" })
+  await showButton.click()
+}
+
 const createBlog = async (page, title, author, url) => {
   await page.getByRole("button", { name: "New Blog" }).click()
   await page.getByTestId("newBlogTitle").fill(title)
@@ -106,15 +111,35 @@ describe("Bloglist app", () => {
         createBlog(page, ...Object.values(content))
       })
 
-      test.only("blog can be liked", async ({ page }) => {
+      test("blog can be liked", async ({ page }) => {
         const addedBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
         await expect(addedBlog).toBeVisible()
-        const showButton = await addedBlog.getByRole("button", { name: "show" })
-        await showButton.click()
+        await expandBlog(addedBlog)
         await expect(addedBlog).toContainText("likes: 0")
         const likeButton = await addedBlog.getByRole("button", { name: "like" })
         await likeButton.click()
         await expect(addedBlog).toContainText("likes: 1")
+      })
+
+      test.only("blog can be removed", async ({ page }) => {
+        const addedBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
+        await expect(addedBlog).toBeVisible()
+        await expandBlog(addedBlog)
+        await expect(addedBlog).toContainText("remove")
+        const removeButton = await addedBlog.getByRole("button", { name: "remove" })
+        // Dialog box handler to accept removal of blog
+        page.on("dialog", async (dialog) => {
+          console.log(`Dialog message: ${dialog.message()}`)
+          if (dialog.type() === "confirm" && dialog.message() === `Delete \"${content.title}\" for good?`) {
+            console.log("Pressing 'OK' on dialog box")
+            await dialog.accept()
+          } else {
+            console.log("Not the wanted dialog box, dismissing")
+            await dialog.accept()
+          }
+        })
+        await removeButton.click()
+        await expect(addedBlog).not.toBeVisible()
       })
 
     })
