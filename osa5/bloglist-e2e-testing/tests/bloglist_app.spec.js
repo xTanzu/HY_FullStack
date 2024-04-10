@@ -13,7 +13,13 @@ const resetBackendAndInsertTestData = async (request) => {
   })
 }
 
-const loginWith = async (page, username, password) => {
+const insertNewTestUserToBackend = async (request, credentials) => {
+  await request.post("/api/users", {
+    data: credentials
+  })
+}
+
+const loginWith = async (page, credentials) => {
   // Vaihtoehto 1
   // await page.getByRole("textbox").first().fill(username)
   // await page.getByRole("textbox").last().fill(correctPassword)
@@ -24,10 +30,19 @@ const loginWith = async (page, username, password) => {
   // await textboxes[1].fill(correctPassword)
 
   // Vaihtoehto 3
-  await page.getByTestId("username_field").fill(username)
-  await page.getByTestId("password_field").fill(password)
+  await page.getByTestId("username_field").fill(credentials.username)
+  await page.getByTestId("password_field").fill(credentials.password)
 
   await page.getByRole("button", { name: "login" }).click()
+}
+
+const logout = async (page) => {
+  const logoutButton = await page.locator(".logoutBtn")
+  await expect(logoutButton).toBeVisible()
+  await logoutButton.click()
+  const loginForm = await page.locator(".loginForm")
+  await expect(loginForm).toBeVisible()
+  await expect(loginForm).toContainText("Log into application")
 }
 
 const expandBlog = async (blog) => {
@@ -77,14 +92,17 @@ describe("Bloglist app", () => {
   })
 
   test("login with correct credentials succeeds", async ({ page }) => {
-    loginWith(page, userCredentials.username, userCredentials.password)
+    await loginWith(page, userCredentials)
     await expect(page.getByText(`${userCredentials.name} logged in`)).toBeVisible()
   })
 
   test("login with incorrect credentials does not succeed", async ({ page }) => {
-    const wrongUsername = "hakkinenmika"
-    const wrongPassword = "vääräsalasana0"
-    loginWith(page, wrongUsername, wrongPassword)
+    const wrongCredentials = {
+      username: "hakkinenmika",
+      name: "Mika Häkkinen",
+      password: "vääräsalasana0",
+    }
+    await loginWith(page, wrongCredentials)
     await expect(page.getByText("username or password incorrect")).toBeVisible()
   })
 
@@ -97,7 +115,7 @@ describe("Bloglist app", () => {
     }
 
     beforeEach(async ({ page }) => {
-      await loginWith(page, userCredentials.username, userCredentials.password)
+      await loginWith(page, userCredentials)
     })
 
     test("a blog can be created", async ({ page }) => {
@@ -121,7 +139,7 @@ describe("Bloglist app", () => {
         await expect(addedBlog).toContainText("likes: 1")
       })
 
-      test.only("blog can be removed", async ({ page }) => {
+      test("blog can be removed", async ({ page }) => {
         const addedBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
         await expect(addedBlog).toBeVisible()
         await expandBlog(addedBlog)
@@ -140,6 +158,28 @@ describe("Bloglist app", () => {
         })
         await removeButton.click()
         await expect(addedBlog).not.toBeVisible()
+      })
+
+      test("only user who created the blog can remove it", async ({ page, request }) => {
+        const addedBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
+        await expect(addedBlog).toBeVisible()
+        await expandBlog(addedBlog)
+        await expect(addedBlog).toContainText("remove")
+        const removeButton = await addedBlog.getByRole("button", { name: "remove" })
+        await expect(removeButton).toBeVisible()
+        await logout(page)
+        const newUserCredentials = {
+          username: "tattiteika",
+          name: "Tatti Teikäläinen",
+          password: "salainensana2"
+        }
+        await insertNewTestUserToBackend(request, newUserCredentials)
+        await loginWith(page, newUserCredentials)
+        await expect(page.getByText(`${newUserCredentials.name} logged in`)).toBeVisible()
+        const theSameBlog = await page.locator(".blogItemWrapper").filter({ hasText: content.title })
+        await expect(theSameBlog).toBeVisible()
+        await expandBlog(theSameBlog)
+        await expect(theSameBlog).not.toContainText("remove")
       })
 
     })

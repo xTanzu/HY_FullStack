@@ -105,7 +105,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
         <br/>
         <div>
           {loggedInUser ? `${loggedInUser.user.name} logged in` : ""}
-          <button onClick={logoutHandler}>logout</button>
+          <button className="logoutBtn" onClick={logoutHandler}>logout</button>
         </div>
         <br/>
         {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
