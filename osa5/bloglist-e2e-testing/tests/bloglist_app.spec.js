@@ -50,6 +50,18 @@ const expandBlog = async (blog) => {
   await showButton.click()
 }
 
+const expandAllBlogs = async (page) => {
+  const blogs = await page.locator(".blogItemWrapper").all()
+  for (const blog of blogs) {
+    await expandBlog(blog)
+  }
+}
+
+const likeBlog = async (blog) => {
+  const likeButton = await blog.getByRole("button", { name: "like" })
+  await likeButton.click()
+}
+
 const createBlog = async (page, title, author, url) => {
   await page.getByRole("button", { name: "New Blog" }).click()
   await page.getByTestId("newBlogTitle").fill(title)
@@ -57,6 +69,15 @@ const createBlog = async (page, title, author, url) => {
   await page.getByTestId("newBlogURL").fill(url)
   await page.getByRole("button", { name: "add" }).click()
   await page.locator(".blogItemWrapper").filter({ hasText: title }).waitFor()
+}
+
+const createNBlogs = async (page, amount) => {
+  for (let i = 0; i < amount; i++) {
+    const title = `This is blog number ${i}`
+    const author = "Generic Author"
+    const url = `http://www.urlforblognumber${i}.com`
+    await createBlog(page, title, author, url)
+  }
 }
 
 const expectBlogToBeListed = async (page, content, user) => {
@@ -123,10 +144,10 @@ describe("Bloglist app", () => {
       await expectBlogToBeListed(page, content, userCredentials)
     })
 
-    describe("when blog has been added", () => {
+    describe("when one blog has been added", () => {
 
       beforeEach(async ({ page }) => {
-        createBlog(page, ...Object.values(content))
+        await createBlog(page, ...Object.values(content))
       })
 
       test("blog can be liked", async ({ page }) => {
@@ -134,8 +155,7 @@ describe("Bloglist app", () => {
         await expect(addedBlog).toBeVisible()
         await expandBlog(addedBlog)
         await expect(addedBlog).toContainText("likes: 0")
-        const likeButton = await addedBlog.getByRole("button", { name: "like" })
-        await likeButton.click()
+        await likeBlog(addedBlog)
         await expect(addedBlog).toContainText("likes: 1")
       })
 
@@ -184,6 +204,84 @@ describe("Bloglist app", () => {
 
     })
 
+    describe("when multiple blogs have been added", () => {
+
+      const getBlogOrderOnPage = async (page) => {
+        const blogs = await page.locator(".blogItemWrapper").all()
+        const order = []
+        for (const blog of blogs) {
+          order.push(await extractBlogNumber(blog))
+        }
+        return order
+      }
+
+      const extractBlogNumber = async (blog) => {
+        const title = await blog.getByTestId("titleAndAuthor").textContent()
+        return parseInt(title.split(" ")[4])
+      }
+
+      const waitForNthBlogToBeBlogNumber = ({ page, ...args }) => {
+        return page.waitForFunction(({ n, expectedBlogNum }) => {
+          const blog = document.querySelectorAll(".blogItemWrapper")[n]
+          const title = blog.children[0]
+          const blogNum = parseInt(title.innerHTML.split(" ")[4])
+          return blogNum === expectedBlogNum
+        }, args)
+      }
+
+      const n = 3
+
+      beforeEach(async ({ page }) => {
+        console.log(`create ${n} blogs`)
+        await createNBlogs(page, n)
+      })
+      
+      test("listing is arranged based on likes", async ({ page }) => {
+        // await page.pause()
+        await expandAllBlogs(page)
+        const order0 = await getBlogOrderOnPage(page)
+        await expect(order0).toEqual([0,1,2])
+
+        // vika ekaks
+        let lastBlog = await page.locator(".blogItemWrapper").last()
+        await likeBlog(lastBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 0, expectedBlogNum: 2})
+        const order1 = await getBlogOrderOnPage(page)
+        await expect(order1).toEqual([2,0,1])
+
+        // vika ekaks
+        lastBlog = await page.locator(".blogItemWrapper").last()
+        await likeBlog(lastBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 0, expectedBlogNum: 1})
+        const order2 = await getBlogOrderOnPage(page)
+        await expect(order2).toEqual([1,2,0])
+
+        // vika ekaks
+        lastBlog = await page.locator(".blogItemWrapper").last()
+        await likeBlog(lastBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 0, expectedBlogNum: 0})
+        const order3 = await getBlogOrderOnPage(page)
+        await expect(order3).toEqual([0,1,2])
+
+        // lista nurinkurin [012] -> [102] -> [120 -> [210]]
+        let secondBlog = await page.locator(".blogItemWrapper").nth(1)
+        await likeBlog(secondBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 0, expectedBlogNum: 1})
+        lastBlog = await page.locator(".blogItemWrapper").last()
+        await likeBlog(lastBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 1, expectedBlogNum: 2})
+        secondBlog = await page.locator(".blogItemWrapper").nth(1)
+        await likeBlog(secondBlog)
+        await waitForNthBlogToBeBlogNumber({page , n: 0, expectedBlogNum: 2})
+        const order4 = await getBlogOrderOnPage(page)
+        await expect(order4).toEqual([2,1,0])
+      })
+
+    })
+
   })
 
 })
+
+
+
