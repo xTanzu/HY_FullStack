@@ -16,7 +16,7 @@ const Anecdote = ({ anecdote, handleVote }) => {
   )
 }
 
-const Anecdotes = () => {
+const AnecdoteList = () => {
 
   const anecdotes = useSelector(state => state)
   const dispatch = useDispatch()
@@ -28,7 +28,6 @@ const Anecdotes = () => {
 
   return (
     <div>
-      <h2>Anecdotes</h2>
       {anecdotes.sort((a,b) => b.votes - a.votes).map(anecdote =>
         <Anecdote key={anecdote.id} anecdote={anecdote} handleVote={vote} />
       )}
@@ -36,4 +35,4 @@ const Anecdotes = () => {
   )
 }
 
-export default Anecdotes
+export default AnecdoteList
