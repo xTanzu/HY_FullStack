@@ -1,4 +1,7 @@
-const Anecdotes = ({ anecdote, handleVote }) => {
+import { useSelector, useDispatch } from "react-redux"
+import { actionVoteForAnecdote } from "../reducers/anecdoteReducer.js"
+
+const Anecdote = ({ anecdote, handleVote }) => {
 
   return (
     <div>
@@ -9,6 +12,26 @@ const Anecdotes = ({ anecdote, handleVote }) => {
         has {anecdote.votes} {anecdote.votes === 1 ? "vote" : "votes"} {"\u00A0"}
         <button onClick={() => handleVote(anecdote.id)}>vote</button>
       </div>
+    </div>
+  )
+}
+
+const Anecdotes = () => {
+
+  const anecdotes = useSelector(state => state)
+  const dispatch = useDispatch()
+
+  const vote = (id) => {
+    console.log('vote', id)
+    dispatch(actionVoteForAnecdote(id))
+  }
+
+  return (
+    <div>
+      <h2>Anecdotes</h2>
+      {anecdotes.map(anecdote =>
+        <Anecdote key={anecdote.id} anecdote={anecdote} handleVote={vote} />
+      )}
     </div>
   )
 }
