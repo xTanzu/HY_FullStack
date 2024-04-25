@@ -23,7 +23,7 @@ const AnecdoteList = () => {
 
   const vote = (id) => {
     console.log('vote', id)
-    dispatch(actionVoteForAnecdote(id))
+    dispatch(actionVoteForAnecdote({ id }))
   }
 
   return (
