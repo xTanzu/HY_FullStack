@@ -1,5 +1,7 @@
 import  { createSlice } from "@reduxjs/toolkit"
 
+import { actionSetNotification } from "../reducers/notificationReducer.js"
+
 import anecdoteService from "../services/anecdotes"
 
 const getId = () => (100000 * Math.random()).toFixed(0)
@@ -43,6 +45,15 @@ export const initializeAnecdotes = () => {
   return async (dispatch) => {
     const anecdotes = await anecdoteService.getAll()
     dispatch(actionSetAnecdotes(anecdotes))
+  }
+}
+
+export const createAnecdote = (content) => {
+  return async (dispatch) => {
+    const anecdote = await anecdoteService.createNew(content)
+    dispatch(actionAppendAncdote(anecdote))
+    const notificationMessage = `You created "${anecdote.content}"`
+    dispatch(actionSetNotification(notificationMessage))
   }
 }
 
