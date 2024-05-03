@@ -18,27 +18,33 @@ const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState: [],
   reducers: {
-    actionVoteForAnecdote(state, action) {
-      const id = action.payload.id
-      const anecdoteToChange = state.find(anecdote => anecdote.id === id)
-      const votedAnecdote = {
-        ...anecdoteToChange,
-        votes: anecdoteToChange.votes + 1
-      }
-      return state.map(anecdote => {
-        return anecdote.id !== id ? anecdote : votedAnecdote 
-      })
-    },
+    // actionVoteForAnecdote(state, action) {
+    //   const id = action.payload.id
+    //   const anecdoteToChange = state.find(anecdote => anecdote.id === id)
+    //   const votedAnecdote = {
+    //     ...anecdoteToChange,
+    //     votes: anecdoteToChange.votes + 1
+    //   }
+    //   return state.map(anecdote => {
+    //     return anecdote.id !== id ? anecdote : votedAnecdote 
+    //   })
+    // },
     actionAppendAncdote(state, action) {
       return [...state, action.payload]
     },
     actionSetAnecdotes(state, action) {
       return action.payload
+    },
+    actionSetAnecdote(state, action) {
+      const updatedAnecdote = action.payload
+      return state.map(anecdote => {
+        return anecdote.id !== updatedAnecdote.id ? anecdote : updatedAnecdote
+      })
     }
   }
 })
 
-export const { actionVoteForAnecdote, actionAppendAncdote, actionSetAnecdotes} = anecdoteSlice.actions
+export const { /*actionVoteForAnecdote,*/ actionAppendAncdote, actionSetAnecdotes, actionSetAnecdote } = anecdoteSlice.actions
 export default anecdoteSlice.reducer
 
 export const initializeAnecdotes = () => {
@@ -53,6 +59,15 @@ export const createAnecdote = (content) => {
     const anecdote = await anecdoteService.createNew(content)
     dispatch(actionAppendAncdote(anecdote))
     const notificationMessage = `You created "${anecdote.content}"`
+    dispatch(actionSetNotification(notificationMessage))
+  }
+}
+
+export const voteForAnecdote = (id) => {
+  return async (dispatch) => {
+    const votedAnecdote = await anecdoteService.voteFor(id)
+    dispatch(actionSetAnecdote(votedAnecdote))
+    const notificationMessage = `You voted "${votedAnecdote.content}"`
     dispatch(actionSetNotification(notificationMessage))
   }
 }
