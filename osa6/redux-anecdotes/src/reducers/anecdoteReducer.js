@@ -59,7 +59,7 @@ export const createAnecdote = (content) => {
     const anecdote = await anecdoteService.createNew(content)
     dispatch(actionAppendAncdote(anecdote))
     const notificationMessage = `You created "${anecdote.content}"`
-    dispatch(notify(notificationMessage))
+    dispatch(notify(notificationMessage, 6))
   }
 }
 
