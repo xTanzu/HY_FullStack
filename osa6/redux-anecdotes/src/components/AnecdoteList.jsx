@@ -1,6 +1,5 @@
 import { useSelector, useDispatch } from "react-redux"
 import { voteForAnecdote } from "../reducers/anecdoteReducer.js"
-import { actionSetNotification } from "../reducers/notificationReducer.js"
 
 const Anecdote = ({ anecdote, handleVote }) => {
 

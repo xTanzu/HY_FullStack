@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 
-import { actionSetNotification, actionClearNotification } from "../reducers/notificationReducer.js"
+import { clearNotification } from "../reducers/notificationReducer.js"
 
 const Notification = () => {
 
@@ -15,18 +15,18 @@ const Notification = () => {
   // ja kun efekti katsoo vain ekaa rendaamista ja sitä kun viestin arvo muuttuu
   // Tämä pitäisi hoitaa storen päässä tyyliin middlewareilla, mutta en tunne niitä reduxissa vielä
   useEffect(() => {
-    if (notification === "") {
+    if (notification.duration === null) {
       return
     }
     clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => {
-      dispatch(actionClearNotification())
-    }, 5000)
+      dispatch(clearNotification())
+    }, notification.duration * 1000)
     return () => clearTimeout(timeoutRef.current) 
   }, [notification])
 
   const style = {
-    visibility: notification === "" ? "hidden" : "",
+    visibility: notification.message === "" ? "hidden" : "",
     border: 'solid 2px green',
     borderRadius: 10,
     padding: 10,
@@ -37,7 +37,7 @@ const Notification = () => {
   }
   return (
     <div style={style}>
-      {notification}
+      {notification.message}
     </div>
   )
 }
