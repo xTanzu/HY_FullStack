@@ -19,7 +19,7 @@ const AnecdoteForm = () => {
     event.target.anecdote.value = ''
     console.log(content)
     newAnecdoteMutation.mutate({ content, votes: 0 })
-}
+  }
 
   return (
     <div>
