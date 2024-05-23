@@ -11,7 +11,7 @@ const App = () => {
   }
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ['notes'],
+    queryKey: ['anecdotes'],
     queryFn: requests.getAnecdotes,
     retry: 1,
   })
