@@ -23,6 +23,8 @@ server.use(jsonServer.bodyParser)
 server.use(validator)
 server.use(router)
 
-server.listen(3001, () => {
-  console.log('JSON Server is running')
+const PORT = 3001
+
+server.listen(PORT, () => {
+  console.log(`JSON Server is running on port ${PORT}`)
 })
