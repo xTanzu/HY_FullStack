@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import requests from './services/requests.js'
 
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
@@ -10,24 +10,9 @@ const App = () => {
     console.log('vote')
   }
 
-   // const anAnecdote = [
-   //   {
-   //     "content": "If it hurts, do it more often",
-   //     "id": "47145",
-   //     "votes": 0
-   //   },
-   // ]
-  
-  const getAnecdotes = async () => {
-    const baseURL = 'http://localhost:3001'
-    const response = await axios.get(`${baseURL}/anecdotes`)
-    return response.data
-  }
-
-
   const { isPending, isError, data } = useQuery({
     queryKey: ['notes'],
-    queryFn: getAnecdotes,
+    queryFn: requests.getAnecdotes,
     retry: 1,
   })
 
