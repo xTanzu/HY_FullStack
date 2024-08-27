@@ -9,7 +9,7 @@ const AnecdoteForm = () => {
 
   const queryClient = useQueryClient()
 
-  const [notificationMessage, notificationDispatch] = useContext(NotificationContext)
+  const [notification, notificationDispatch] = useContext(NotificationContext)
 
   const newAnecdoteMutation = useMutation({
     mutationFn: requests.postAnecdote,
@@ -18,6 +18,11 @@ const AnecdoteForm = () => {
       queryClient.setQueryData(['anecdotes'], (oldAnecdotes) => {
         return oldAnecdotes.concat(addedAnecdote)
       })
+      notificationDispatch({ type: "NEW", payload: addedAnecdote.content })
+    },
+    onError: (data) => {
+      const errorMsg = data.response.data.error
+      notificationDispatch({ type: "ERROR", payload: errorMsg })
     }
   })
 
@@ -27,7 +32,6 @@ const AnecdoteForm = () => {
     event.target.anecdote.value = ''
     // console.log(content)
     newAnecdoteMutation.mutate({ content, votes: 0 })
-    notificationDispatch({ type: "NEW", payload: content })
   }
 
   return (

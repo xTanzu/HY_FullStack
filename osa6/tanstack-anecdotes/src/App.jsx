@@ -9,7 +9,7 @@ import NotificationContext from './NotificationContext'
 
 const App = () => {
 
-  const [notificationMessage, notificationDispatch] = useContext(NotificationContext)
+  const [notification, notificationDispatch] = useContext(NotificationContext)
 
   const queryClient = useQueryClient()
 
@@ -19,13 +19,16 @@ const App = () => {
       queryClient.setQueryData(['anecdotes'], (oldAnecdotes) => {
         return oldAnecdotes.map(anecdote => anecdote.id === votedAnecdote.id ? votedAnecdote : anecdote)
       })
+      notificationDispatch({ type: "VOTED", payload: votedAnecdote.content })
+    },
+    onError: (error) => {
+      notificationDispatch({ type: "ERROR", payload: "unable to vote" })
     }
   })
 
   const handleVote = (anecdote) => {
     const votedAnecdote = { ...anecdote, votes: anecdote.votes + 1 }
     voteMutation.mutate(votedAnecdote)
-    notificationDispatch({ type: "VOTED", payload: anecdote.content })
   }
 
   const { isPending, isError, data } = useQuery({

@@ -3,10 +3,16 @@ import NotificationContext from '../NotificationContext'
 
 const Notification = () => {
 
-  const [notificationMessage, notificationDispatch] = useContext(NotificationContext)
+  const [notification, notificationDispatch] = useContext(NotificationContext)
+
+  const notificationColor = { 
+    "SUCCESS": "green",
+    "ERROR": "red",
+    "CLEARED": ""
+  }
 
   const style = {
-    visibility: notificationMessage === "" ? "hidden" : "visible",
+    visibility: notification.state === "CLEARED" ? "hidden" : "visible",
     display: "block",
     width: "max-content",
     border: 'solid 2px black',
@@ -16,23 +22,23 @@ const Notification = () => {
     fontFamily: "helvetica, sans-serif",
     marginBottom: 5,
     color: "white",
-    background: "DimGray",
+    background: notificationColor[notification.state],
   }
 
   useEffect(() => {
-    if (notificationMessage !== "") {
+    if (notification.state !== "CLEARED") {
       const clearOutTimer = setTimeout(() => {
         notificationDispatch({ type: "CLEAR" })
       }, 5000)
       return () => {clearTimeout(clearOutTimer)}
     }
-  }, [notificationMessage])
+  }, [notification])
   
   // if (true) return null
 
   return (
     <div style={style}>
-      { notificationMessage }
+      { notification.message}
     </div>
   )
 }

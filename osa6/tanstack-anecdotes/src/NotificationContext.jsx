@@ -1,13 +1,17 @@
 import { createContext, useReducer, useContext } from 'react'
 
+const emptyNotification = { message: "", state: "CLEARED" }
+
 const notificationReducer =  (state, action) => {
   switch(action.type) {
     case "VOTED":
-      return `Anecdote "${action.payload}" voted`
+      return { message: `Anecdote "${action.payload}" voted`, state: "SUCCESS" }
     case "NEW":
-      return `Anecdote "${action.payload}" created`
+      return { message: `Anecdote "${action.payload}" created`, state: "SUCCESS" }
+    case "ERROR":
+      return { message: action.payload, state: "ERROR" }
     case "CLEAR":
-      return ""
+      return emptyNotification
     default:
       return state
   }
@@ -16,10 +20,10 @@ const notificationReducer =  (state, action) => {
 const NotificationContext = createContext()
 
 export const NotificationContextProvider = (props) => {
-  const [notificationMessage, notificationDispatch] = useReducer(notificationReducer, "")
+  const [notification, notificationDispatch] = useReducer(notificationReducer, emptyNotification)
 
   return (
-    <NotificationContext.Provider value={[notificationMessage, notificationDispatch]}> 
+    <NotificationContext.Provider value={[notification, notificationDispatch]}> 
       {props.children}
     </NotificationContext.Provider> 
   )
