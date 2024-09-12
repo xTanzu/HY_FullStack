@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Routes,
   Route,
   Link,
-  useMatch
+  useMatch,
+  useNavigate
 } from "react-router-dom"
 
 const Menu = () => {
@@ -16,6 +17,24 @@ const Menu = () => {
       <Link style={padding} to={"/createnew"}>create new</Link>
       <Link style={padding} to={"/about"}>about</Link>
     </div>
+  )
+}
+
+const Notification = ({ message }) => {
+
+  const notifyStyle = {
+    visibility: message == "" ? "hidden" : "visible",
+    display: "block",
+    width: "max-content",
+    padding: "8px 40px",
+    border: "solid gray 2px",
+    borderRadius: 8,
+    color: "dimgrey",
+    background: "#D3FFD3",
+  }
+
+  return (
+    <div style={notifyStyle}>{message}</div>
   )
 }
 
@@ -71,6 +90,7 @@ const CreateNew = (props) => {
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
 
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -80,6 +100,7 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    navigate("/")
   }
 
   return (
@@ -125,11 +146,23 @@ const App = () => {
 
   const [notification, setNotification] = useState('')
 
+  const clearNotification = () => {
+    setNotification("")
+  }
+
+  useEffect(() => {
+    if ( notification !== "") {
+      const clearNotificationTimeout = setTimeout(clearNotification, 5000)
+      return () => clearTimeout(clearNotificationTimeout)
+    }
+  }, [notification])
+
   const singleAnecdoteMatch = useMatch("/anecdotes/:id")
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification((`a new anecdote "${anecdote.content}" by ${anecdote.author} was added`))
   }
 
   const anecdoteById = (id) =>
@@ -150,10 +183,15 @@ const App = () => {
     ? anecdotes.find(anecdote => anecdote.id === Number(singleAnecdoteMatch.params.id))
     : null
 
+  const baseStyle = {
+    fontFamily: "Helvetica, Verdana, Arial, sans-serif"
+  }
+
   return (
-    <div>
+    <div style={baseStyle}>
       <h1>Software anecdotes</h1>
       <Menu />
+      <Notification message={notification} />
       <Routes>
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
         <Route path="/about" element={<About />} />
