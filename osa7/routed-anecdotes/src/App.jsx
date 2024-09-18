@@ -87,10 +87,6 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  // const [content, setContent] = useState('')
-  // const [author, setAuthor] = useState('')
-  // const [info, setInfo] = useState('')
-
   const content = useField('text')
   const author = useField('text')
   const info = useField('text')
@@ -106,6 +102,14 @@ const CreateNew = (props) => {
       votes: 0
     })
     navigate("/")
+  }
+
+  const handleClearAll = (e) => {
+    e.preventDefault()
+    const fields = [content, author, info]
+    for (const field of fields) {
+      field.onClear()
+    }
   }
 
   return (
@@ -125,6 +129,7 @@ const CreateNew = (props) => {
           <input {...info} />
         </div>
         <button>create</button>
+        <button onClick={handleClearAll}>reset</button>
       </form>
     </div>
   )
