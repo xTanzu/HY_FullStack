@@ -87,9 +87,9 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const content = useField('text')
-  const author = useField('text')
-  const info = useField('text')
+  const { onClear: clearContent, ...content } = useField('text')
+  const { onClear: clearAuthor, ...author } = useField('text')
+  const { onClear: clearInfo, ...info } = useField('text')
 
   const navigate = useNavigate()
 
@@ -106,10 +106,8 @@ const CreateNew = (props) => {
 
   const handleClearAll = (e) => {
     e.preventDefault()
-    const fields = [content, author, info]
-    for (const field of fields) {
-      field.onClear()
-    }
+    const clearFuncs = [clearContent, clearAuthor, clearInfo]
+    clearFuncs.forEach(func => func())
   }
 
   return (
