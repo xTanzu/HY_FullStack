@@ -8,20 +8,42 @@ const useField = (type) => {
     setValue(event.target.value)
   }
 
+  const onClear = () => {
+    setValue('')
+  }
+
   return {
     type,
     value,
-    onChange
+    onChange,
+    onClear
   }
 }
 
 const useResource = (baseUrl) => {
   const [resources, setResources] = useState([])
 
-  // ...
+  useEffect(() => {
+    const getData = async () => {
+      const resp = await axios.get(baseUrl)
+      setResources(resp.data)
+    }
+    getData()
+  }, [])
 
   const create = (resource) => {
-    // ...
+    //  Tämä oli tyhmää, mutta tänne muistiin miten Promiseja hylätään manuaalisesti
+    // if (resource.content.trim().length === 0) {
+    //   return Promise.reject(new Error("input is empty..."))
+    // }
+    return axios.post(baseUrl, resource)
+      .then((resp) => {
+        setResources(resources.concat(resp.data))
+        return true
+      })
+      .catch(() => {
+        return false
+      })
   }
 
   const service = {
@@ -34,9 +56,9 @@ const useResource = (baseUrl) => {
 }
 
 const App = () => {
-  const content = useField('text')
-  const name = useField('text')
-  const number = useField('text')
+  const { onClear: clearContent, ...content } = useField('text')
+  const { onClear: clearName, ...name } = useField('text')
+  const { onClear: clearNumber, ...number } = useField('text')
 
   const [notes, noteService] = useResource('http://localhost:3005/notes')
   const [persons, personService] = useResource('http://localhost:3005/persons')
@@ -44,11 +66,28 @@ const App = () => {
   const handleNoteSubmit = (event) => {
     event.preventDefault()
     noteService.create({ content: content.value })
+      .then((success) => {
+        if (success) {
+          clearContent()
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
  
   const handlePersonSubmit = (event) => {
     event.preventDefault()
     personService.create({ name: name.value, number: number.value})
+      .then((success) => {
+        if (success) {
+          clearName()
+          clearNumber()
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   return (
