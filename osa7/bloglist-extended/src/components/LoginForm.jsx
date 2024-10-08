@@ -1,8 +1,11 @@
 /** @format */
 
 import { useState, useRef, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { ErrorMessage, SuccessMessage } from './Notification'
+
+import Notification from './Notification'
+import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 
 import loginService from '../services/login'
 import blogService from '../services/blogs'
@@ -11,10 +14,7 @@ const LoginForm = ({ setLoggedInUser }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
-  const errorTimeoutRef = useRef(null)
-  const successTimeoutRef = useRef(null)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const loggedInUserJSON = window.localStorage.getItem('loggedInUser')
@@ -24,22 +24,6 @@ const LoginForm = ({ setLoggedInUser }) => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const flashError = (message) => {
-    clearTimeout(errorTimeoutRef.current)
-    setErrorMessage(message)
-    errorTimeoutRef.current = setTimeout(() => {
-      setErrorMessage(null)
-    }, 5000)
-  }
-
-  const flashSuccess = (message) => {
-    clearTimeout(successTimeoutRef.current)
-    setSuccessMessage(message)
-    successTimeoutRef.current = setTimeout(() => {
-      setSuccessMessage(null)
-    }, 5000)
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -51,12 +35,12 @@ const LoginForm = ({ setLoggedInUser }) => {
       window.localStorage.setItem('loggedInUser', JSON.stringify(user))
       setLoggedInUser(user)
       blogService.setToken(user.token)
-      flashSuccess('login succesful')
+      dispatch(setSuccessMsg('login succesful'))
       setUsername('')
       setPassword('')
     } catch (exception) {
       if (exception.response.status === 401) {
-        flashError('username or password incorrect')
+        dispatch(setErrorMsg('username or password incorrect'))
       } else {
         throw exception
       }
@@ -91,8 +75,7 @@ const LoginForm = ({ setLoggedInUser }) => {
         </div>
         <button type='submit'>login</button>
       </form>
-      <ErrorMessage message={errorMessage} />
-      <SuccessMessage message={successMessage} />
+      <Notification />
     </div>
   )
 }

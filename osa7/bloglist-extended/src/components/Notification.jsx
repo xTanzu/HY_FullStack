@@ -1,24 +1,27 @@
 /** @format */
 
-const ErrorMessage = ({ message }) => {
+import { useRef, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { clearNotificationMsg } from '../reducers/notificationReducer'
+
+const Notification = () => {
+  const dispatch = useDispatch()
+  const { message, type } = useSelector((state) => state.notification)
+  const timeoutRef = useRef(null)
+
+  useEffect(() => {
+    if (type != 'EMPTY') {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(() => {
+        dispatch(clearNotificationMsg())
+      }, 5000)
+    }
+    return () => clearTimeout(timeoutRef.current)
+  }, [message])
+
   const style = {
-    background: 'red',
-  }
-
-  return <NotificationMessage message={message} style={style} />
-}
-
-const SuccessMessage = ({ message }) => {
-  const style = {
-    background: 'green',
-  }
-
-  return <NotificationMessage message={message} style={style} />
-}
-
-const NotificationMessage = ({ message, style }) => {
-  const baseStyle = {
-    display: message ? 'block' : 'none',
+    display: type === 'EMPTY' ? 'none' : 'block',
     padding: '10px',
     margin: '10px',
     borderWidth: '2px',
@@ -26,12 +29,11 @@ const NotificationMessage = ({ message, style }) => {
     borderRadius: '10px',
     fontFamily: 'Helvetica',
     fontWeight: 'bold',
-    background: 'grey',
+    background: type === 'SUCCESS' ? 'green' : 'RED',
     color: 'white',
   }
-  const compoundStyle = { ...baseStyle, ...style }
 
-  return <div style={compoundStyle}>{message}</div>
+  return <div style={style}>{message}</div>
 }
 
-export { ErrorMessage, SuccessMessage }
+export default Notification
