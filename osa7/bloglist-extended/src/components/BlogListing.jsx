@@ -1,7 +1,7 @@
 /** @format */
 
 import { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import blogService from '../services/blogs'
 import Blog from './Blog'
@@ -9,19 +9,20 @@ import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
+import { setBlogList, addNewBlog } from '../reducers/blogReducer'
 
 const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
-  const [blogs, setBlogs] = useState([])
   const blogFormWrapper = useRef()
   const dispatch = useDispatch()
+  const blogs = useSelector((state) => state.blogs)
 
   useEffect(() => {
     updateBlogs()
   }, [])
 
   const updateBlogs = async () => {
-    const blogs = await blogService.getAll()
-    setBlogs(blogs)
+    const updatedBlogs = await blogService.getAll()
+    dispatch(setBlogList(updatedBlogs))
   }
 
   const logoutHandler = () => {
@@ -29,11 +30,11 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
     window.localStorage.removeItem('loggedInUser')
   }
 
-  const addNewBlog = async ({ title, author, url }) => {
+  const handleNewBlog = async ({ title, author, url }) => {
     const blog = { title, author, url }
     try {
-      const response = await blogService.post(blog)
-      updateBlogs()
+      const newBlog = await blogService.post(blog)
+      dispatch(addNewBlog(newBlog))
       blogFormWrapper.current.toggleVisible()
       dispatch(setSuccessMsg(`a new blog "${blog.title}" by ${blog.author} was added`))
       return { success: true }
@@ -94,7 +95,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
         </div>
         <br />
         {blogs
-          .sort((a, b) => b.likes - a.likes)
+          .toSorted((a, b) => b.likes - a.likes)
           .map((blog) => (
             <Blog
               key={blog.id}
@@ -106,7 +107,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
           ))}
       </div>
       <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
-        <BlogForm addNewBlog={addNewBlog} />
+        <BlogForm handleNewBlog={handleNewBlog} />
       </Togglable>
       <Notification />
     </>

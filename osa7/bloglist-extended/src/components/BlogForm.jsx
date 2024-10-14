@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-const BlogForm = ({ addNewBlog }) => {
+const BlogForm = ({ handleNewBlog }) => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogURL, setNewBlogURL] = useState('')
@@ -20,7 +20,7 @@ const BlogForm = ({ addNewBlog }) => {
       author: newBlogAuthor,
       url: newBlogURL,
     }
-    const response = await addNewBlog(blog)
+    const response = await handleNewBlog(blog)
     if (response.success === true) {
       clearBlogForm()
     }
