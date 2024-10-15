@@ -9,7 +9,7 @@ import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
-import { setBlogList, addNewBlog } from '../reducers/blogReducer'
+import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
 
 const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
   const blogFormWrapper = useRef()
@@ -47,8 +47,8 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
 
   const handleLike = async (blog) => {
     try {
-      const response = await blogService.like(blog)
-      updateBlogs()
+      const likedBlog = await blogService.like(blog)
+      dispatch(updateBlog(likedBlog))
       dispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
@@ -57,8 +57,8 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
 
   const handleRemove = async (blog) => {
     try {
-      const response = await blogService.remove(blog)
-      updateBlogs()
+      const removedBlog = await blogService.remove(blog)
+      dispatch(removeBlog(removedBlog))
       dispatch(setErrorMsg(`Deleted blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
