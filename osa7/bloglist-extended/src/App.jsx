@@ -1,19 +1,17 @@
 /** @format */
 
-import { useState } from 'react'
+import { useSelector } from 'react-redux'
 
 import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
 
 const App = () => {
-  const [loggedInUser, setLoggedInUser] = useState(null)
+  const loggedInUser = useSelector((state) => state.loggedInUser)
 
   return (
     <div>
-      {!loggedInUser && <LoginForm setLoggedInUser={setLoggedInUser} />}
-      {loggedInUser && (
-        <BlogListing loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
-      )}
+      {!loggedInUser && <LoginForm />}
+      {loggedInUser && <BlogListing />}
     </div>
   )
 }

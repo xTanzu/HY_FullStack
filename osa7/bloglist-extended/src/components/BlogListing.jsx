@@ -1,6 +1,6 @@
 /** @format */
 
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import blogService from '../services/blogs'
@@ -8,12 +8,14 @@ import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import Notification from './Notification'
+import { login } from '../reducers/loginReducer'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
 
-const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
+const BlogListing = () => {
   const blogFormWrapper = useRef()
   const dispatch = useDispatch()
+  const loggedInUser = useSelector((state) => state.loggedInUser)
   const blogs = useSelector((state) => state.blogs)
 
   useEffect(() => {
@@ -26,7 +28,7 @@ const BlogListing = ({ loggedInUser, setLoggedInUser }) => {
   }
 
   const logoutHandler = () => {
-    setLoggedInUser(null)
+    dispatch(login(null))
     window.localStorage.removeItem('loggedInUser')
   }
 

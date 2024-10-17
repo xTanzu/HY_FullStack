@@ -1,16 +1,15 @@
 /** @format */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import PropTypes from 'prop-types'
 
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
+import { login } from '../reducers/loginReducer'
 
 import loginService from '../services/login'
-import blogService from '../services/blogs'
 
-const LoginForm = ({ setLoggedInUser }) => {
+const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -20,8 +19,7 @@ const LoginForm = ({ setLoggedInUser }) => {
     const loggedInUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedInUserJSON) {
       const user = JSON.parse(loggedInUserJSON)
-      setLoggedInUser(user)
-      blogService.setToken(user.token)
+      dispatch(login(user))
     }
   }, [])
 
@@ -33,8 +31,7 @@ const LoginForm = ({ setLoggedInUser }) => {
         password,
       })
       window.localStorage.setItem('loggedInUser', JSON.stringify(user))
-      setLoggedInUser(user)
-      blogService.setToken(user.token)
+      dispatch(login(user))
       dispatch(setSuccessMsg('login succesful'))
       setUsername('')
       setPassword('')
@@ -78,10 +75,6 @@ const LoginForm = ({ setLoggedInUser }) => {
       <Notification />
     </div>
   )
-}
-
-LoginForm.propTypes = {
-  setLoggedInUser: PropTypes.func.isRequired,
 }
 
 export default LoginForm
