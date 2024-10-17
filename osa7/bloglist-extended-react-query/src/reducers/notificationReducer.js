@@ -1,37 +1,50 @@
 /** @format */
 
-import { createSlice } from '@reduxjs/toolkit'
-
 const initialState = {
   message: '',
   type: 'EMPTY',
 }
 
-const notificationSlice = createSlice({
-  name: 'notification',
-  initialState,
-  reducers: {
-    setErrorMsg: (state, action) => {
+const notificationReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_ERROR_MSG':
       return {
         message: action.payload,
         type: 'ERROR',
       }
-    },
-    setSuccessMsg: (state, action) => {
+    case 'SET_SUCCESS_MSG':
       return {
         message: action.payload,
         type: 'SUCCESS',
       }
-    },
-    clearNotificationMsg: () => {
+    case 'CLEAR_NOTIFICATION':
       return {
         message: '',
         type: 'EMPTY',
       }
-    },
-  },
-})
+    default:
+      return state
+  }
+}
 
-export const { setErrorMsg, setSuccessMsg, clearNotificationMsg } = notificationSlice.actions
+export const setErrorMsg = (message) => {
+  return {
+    type: 'SET_ERROR_MSG',
+    payload: message,
+  }
+}
 
-export default notificationSlice.reducer
+export const setSuccessMsg = (message) => {
+  return {
+    type: 'SET_SUCCESS_MSG',
+    payload: message,
+  }
+}
+
+export const clearNotificationMsg = () => {
+  return {
+    type: 'CLEAR_NOTIFICATION',
+  }
+}
+
+export default notificationReducer

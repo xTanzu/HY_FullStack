@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
+import { useStateDispatch } from '../context/stateContext'
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { login } from '../reducers/loginReducer'
@@ -13,6 +14,7 @@ const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
+  const stateDispatch = useStateDispatch()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -32,12 +34,12 @@ const LoginForm = () => {
       })
       window.localStorage.setItem('loggedInUser', JSON.stringify(user))
       dispatch(login(user))
-      dispatch(setSuccessMsg('login succesful'))
+      stateDispatch(setSuccessMsg('login succesful'))
       setUsername('')
       setPassword('')
     } catch (exception) {
       if (exception.response.status === 401) {
-        dispatch(setErrorMsg('username or password incorrect'))
+        stateDispatch(setErrorMsg('username or password incorrect'))
       } else {
         throw exception
       }

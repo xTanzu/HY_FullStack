@@ -1,20 +1,21 @@
 /** @format */
 
-import { useRef, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useRef, useEffect, useContext } from 'react'
+
+import stateContext from '../context/stateContext'
 
 import { clearNotificationMsg } from '../reducers/notificationReducer'
 
 const Notification = () => {
-  const dispatch = useDispatch()
-  const { message, type } = useSelector((state) => state.notification)
+  const [state, stateDispatch] = useContext(stateContext)
+  const { message, type } = state
   const timeoutRef = useRef(null)
 
   useEffect(() => {
     if (type != 'EMPTY') {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
-        dispatch(clearNotificationMsg())
+        stateDispatch(clearNotificationMsg())
       }, 5000)
     }
     return () => clearTimeout(timeoutRef.current)

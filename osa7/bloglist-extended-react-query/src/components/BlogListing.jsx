@@ -1,19 +1,23 @@
 /** @format */
 
-import { useRef, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useRef, useEffect, useContext } from 'react'
+import { useDispatch, useSelector } from 'react-redux' // pitää poistaa
 
+import stateContext from '../context/stateContext'
 import blogService from '../services/blogs'
+
 import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import Notification from './Notification'
+
 import { login } from '../reducers/loginReducer'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
 
 const BlogListing = () => {
   const blogFormWrapper = useRef()
+  const [state, stateDispatch] = useContext(stateContext)
   const dispatch = useDispatch()
   const loggedInUser = useSelector((state) => state.loggedInUser)
   const blogs = useSelector((state) => state.blogs)
@@ -38,11 +42,10 @@ const BlogListing = () => {
       const newBlog = await blogService.post(blog)
       dispatch(addNewBlog(newBlog))
       blogFormWrapper.current.toggleVisible()
-      dispatch(setSuccessMsg(`a new blog "${blog.title}" by ${blog.author} was added`))
+      stateDispatch(setSuccessMsg(`a new blog "${blog.title}" by ${blog.author} was added`))
       return { success: true }
     } catch (exception) {
       handleAxiosException(exception)
-      // Miten tämän voisi muuttaa promiseksi
       return { success: false }
     }
   }
@@ -51,7 +54,7 @@ const BlogListing = () => {
     try {
       const likedBlog = await blogService.like(blog)
       dispatch(updateBlog(likedBlog))
-      dispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
+      stateDispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
     }
@@ -61,7 +64,7 @@ const BlogListing = () => {
     try {
       const removedBlog = await blogService.remove(blog)
       dispatch(removeBlog(removedBlog))
-      dispatch(setErrorMsg(`Deleted blog "${blog.title}" by ${blog.author}`))
+      stateDispatch(setErrorMsg(`Deleted blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
     }
@@ -70,9 +73,9 @@ const BlogListing = () => {
   const handleAxiosException = (exception) => {
     const handleResponseErrorCodes = (response) => {
       if (response.status === 401) {
-        dispatch(setErrorMsg('not permitted'))
+        stateDispatch(setErrorMsg('not permitted'))
       } else if (response.status === 400) {
-        dispatch(setErrorMsg(response.data.error))
+        stateDispatch(setErrorMsg(response.data.error))
       } else {
         throw exception
       }
