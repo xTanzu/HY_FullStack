@@ -30,8 +30,11 @@ const BlogListing = () => {
 
   const newBlogMutation = useMutation({
     mutationFn: blogService.post,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    onSuccess: (newBlog) => {
+      // queryClient.invalidateQueries({ queryKey: ['blogs'] })
+      const blogList = queryClient.getQueryData(['blogs'])
+      console.log(blogList)
+      queryClient.setQueryData(['blogs'], blogList.concat(newBlog))
     },
   })
 
