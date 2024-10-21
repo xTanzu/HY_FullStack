@@ -31,10 +31,19 @@ const BlogListing = () => {
   const newBlogMutation = useMutation({
     mutationFn: blogService.post,
     onSuccess: (newBlog) => {
-      // queryClient.invalidateQueries({ queryKey: ['blogs'] })
       const blogList = queryClient.getQueryData(['blogs'])
-      console.log(blogList)
       queryClient.setQueryData(['blogs'], blogList.concat(newBlog))
+    },
+  })
+
+  const likeBlogMutation = useMutation({
+    mutationFn: blogService.like,
+    onSuccess: (likedBlog) => {
+      const blogList = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(
+        ['blogs'],
+        blogList.map((blog) => (blog.id !== likedBlog.id ? blog : likedBlog)),
+      )
     },
   })
 
@@ -58,8 +67,7 @@ const BlogListing = () => {
 
   const handleLike = async (blog) => {
     try {
-      const likedBlog = await blogService.like(blog)
-      dispatch(updateBlog(likedBlog))
+      likeBlogMutation.mutate(blog)
       stateDispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
