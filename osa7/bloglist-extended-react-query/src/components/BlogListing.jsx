@@ -1,10 +1,12 @@
 /** @format */
 
 import { useRef, useEffect, useContext } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useDispatch, useSelector } from 'react-redux' // pitää poistaa
 
 import stateContext from '../context/stateContext'
 import blogService from '../services/blogs'
+import { queryClient } from '../queryStore'
 
 import Blog from './Blog'
 import BlogForm from './BlogForm'
@@ -20,16 +22,18 @@ const BlogListing = () => {
   const [state, stateDispatch] = useContext(stateContext)
   const dispatch = useDispatch()
   const loggedInUser = useSelector((state) => state.loggedInUser)
-  const blogs = useSelector((state) => state.blogs)
 
-  useEffect(() => {
-    updateBlogs()
-  }, [])
+  const blogs = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+  })
 
-  const updateBlogs = async () => {
-    const updatedBlogs = await blogService.getAll()
-    dispatch(setBlogList(updatedBlogs))
-  }
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.post,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    },
+  })
 
   const logoutHandler = () => {
     dispatch(login(null))
@@ -39,8 +43,7 @@ const BlogListing = () => {
   const handleNewBlog = async ({ title, author, url }) => {
     const blog = { title, author, url }
     try {
-      const newBlog = await blogService.post(blog)
-      dispatch(addNewBlog(newBlog))
+      newBlogMutation.mutate(blog)
       blogFormWrapper.current.toggleVisible()
       stateDispatch(setSuccessMsg(`a new blog "${blog.title}" by ${blog.author} was added`))
       return { success: true }
@@ -99,17 +102,20 @@ const BlogListing = () => {
           </button>
         </div>
         <br />
-        {blogs
-          .toSorted((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              loggedInUser={loggedInUser}
-              handleLike={handleLike}
-              handleRemove={handleRemove}
-            />
-          ))}
+        {blogs.isLoading && <div>Loading blogs...</div>}
+        {blogs.isError && <div>Error loading data</div>}
+        {blogs.isSuccess &&
+          blogs.data
+            .toSorted((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                loggedInUser={loggedInUser}
+                handleLike={handleLike}
+                handleRemove={handleRemove}
+              />
+            ))}
       </div>
       <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
         <BlogForm handleNewBlog={handleNewBlog} />
