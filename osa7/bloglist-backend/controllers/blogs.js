@@ -32,10 +32,15 @@ blogsRouter.post("/", async (request, response, next) => {
       likes: likes ? likes : 0,
       user: user._id,
     });
-    savedBlog = await blog.save();
+    const savedBlog = await blog.save();
     user.blogs = user.blogs.concat(savedBlog);
     await user.save();
-    response.status(201).json(savedBlog);
+    const populatedBlog = await savedBlog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1
+    })
+    response.status(201).json(populatedBlog);
   } catch (exception) {
     next(exception);
   }
@@ -72,7 +77,12 @@ blogsRouter.put("/:id", async (request, response, next) => {
       request.body,
       { new: true }
     );
-    response.status(200).json(updatedBlog);
+    const populatedBlog = await updatedBlog.populate("user", {
+      username: 1,
+      name: 1,
+      id: 1
+    })
+    response.status(200).json(populatedBlog);
   } catch (exception) {
     next(exception);
   }
