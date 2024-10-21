@@ -27,10 +27,12 @@ const BlogListing = () => {
     queryKey: ['blogs'],
     queryFn: blogService.getAll,
   })
+  // blogs.isSuccess && console.log(blogs.data)
 
   const newBlogMutation = useMutation({
     mutationFn: blogService.post,
     onSuccess: (newBlog) => {
+      console.log(newBlog)
       const blogList = queryClient.getQueryData(['blogs'])
       queryClient.setQueryData(['blogs'], blogList.concat(newBlog))
     },
@@ -43,6 +45,17 @@ const BlogListing = () => {
       queryClient.setQueryData(
         ['blogs'],
         blogList.map((blog) => (blog.id !== likedBlog.id ? blog : likedBlog)),
+      )
+    },
+  })
+
+  const removeBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: (removedBlog) => {
+      const blogList = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(
+        ['blogs'],
+        blogList.filter((blog) => blog.id !== removedBlog.id),
       )
     },
   })
@@ -76,8 +89,7 @@ const BlogListing = () => {
 
   const handleRemove = async (blog) => {
     try {
-      const removedBlog = await blogService.remove(blog)
-      dispatch(removeBlog(removedBlog))
+      removeBlogMutation.mutate(blog)
       stateDispatch(setErrorMsg(`Deleted blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)
