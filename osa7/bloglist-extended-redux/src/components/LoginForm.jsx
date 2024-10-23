@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
@@ -14,12 +15,14 @@ const LoginForm = () => {
   const [password, setPassword] = useState('')
 
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loggedInUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedInUserJSON) {
       const user = JSON.parse(loggedInUserJSON)
       dispatch(login(user))
+      navigate('/')
     }
   }, [])
 
@@ -35,6 +38,7 @@ const LoginForm = () => {
       dispatch(setSuccessMsg('login succesful'))
       setUsername('')
       setPassword('')
+      navigate('/')
     } catch (exception) {
       if (exception.response.status === 401) {
         dispatch(setErrorMsg('username or password incorrect'))
