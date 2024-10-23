@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { login } from '../reducers/loginReducer'
 
@@ -76,7 +75,6 @@ const LoginForm = () => {
         </div>
         <button type='submit'>login</button>
       </form>
-      <Notification />
     </div>
   )
 }

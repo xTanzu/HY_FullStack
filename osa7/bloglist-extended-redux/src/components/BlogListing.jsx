@@ -4,11 +4,10 @@ import { useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import blogService from '../services/blogs'
+import UserInfo from './UserInfo'
 import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
-import Notification from './Notification'
-import { login } from '../reducers/loginReducer'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
 
@@ -25,11 +24,6 @@ const BlogListing = () => {
   const updateBlogs = async () => {
     const updatedBlogs = await blogService.getAll()
     dispatch(setBlogList(updatedBlogs))
-  }
-
-  const logoutHandler = () => {
-    dispatch(login(null))
-    window.localStorage.removeItem('loggedInUser')
   }
 
   const handleNewBlog = async ({ title, author, url }) => {
@@ -88,14 +82,7 @@ const BlogListing = () => {
     <>
       <div className='blogListing'>
         <h2>blogs</h2>
-        <br />
-        <div>
-          {loggedInUser ? `${loggedInUser.user.name} logged in` : ''}
-          <button className='logoutBtn' onClick={logoutHandler}>
-            logout
-          </button>
-        </div>
-        <br />
+        <UserInfo />
         {blogs
           .toSorted((a, b) => b.likes - a.likes)
           .map((blog) => (
@@ -111,7 +98,6 @@ const BlogListing = () => {
       <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
         <BlogForm handleNewBlog={handleNewBlog} />
       </Togglable>
-      <Notification />
     </>
   )
 }

@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 
 import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
+import Notification from './components/Notification'
 
 const App = () => {
   const loggedInUser = useSelector((state) => state.loggedInUser)
@@ -18,6 +19,7 @@ const App = () => {
           element={loggedInUser ? <BlogListing /> : <Navigate replace to='/login' />}
         />
       </Routes>
+      <Notification />
     </div>
   )
 }
