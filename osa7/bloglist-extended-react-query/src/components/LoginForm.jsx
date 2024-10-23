@@ -1,27 +1,28 @@
 /** @format */
 
 import { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
 
 import { useStateDispatch } from '../context/stateContext'
+
 import Notification from './Notification'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { login } from '../reducers/loginReducer'
 
 import loginService from '../services/login'
+import blogService from '../services/blogs'
 
 const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
   const stateDispatch = useStateDispatch()
-  const dispatch = useDispatch()
 
   useEffect(() => {
     const loggedInUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedInUserJSON) {
       const user = JSON.parse(loggedInUserJSON)
-      dispatch(login(user))
+      stateDispatch(login(user))
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -33,7 +34,8 @@ const LoginForm = () => {
         password,
       })
       window.localStorage.setItem('loggedInUser', JSON.stringify(user))
-      dispatch(login(user))
+      stateDispatch(login(user))
+      blogService.setToken(user.token)
       stateDispatch(setSuccessMsg('login succesful'))
       setUsername('')
       setPassword('')

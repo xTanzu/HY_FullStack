@@ -1,12 +1,13 @@
 /** @format */
 
-import { useSelector } from 'react-redux'
+import { useAppState } from './context/stateContext'
 
 import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
 
 const App = () => {
-  const loggedInUser = useSelector((state) => state.loggedInUser)
+  const state = useAppState()
+  const loggedInUser = state.loggedInUser
 
   return (
     <div>

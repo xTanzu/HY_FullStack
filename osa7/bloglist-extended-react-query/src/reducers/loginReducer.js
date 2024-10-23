@@ -1,16 +1,29 @@
 /** @format */
 
-import { createSlice } from '@reduxjs/toolkit'
+const initialState = null
 
-const loginSlice = createSlice({
-  name: 'loggedInUser',
-  initialState: null,
-  reducers: {
-    login: (state, action) => {
+const loginReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'LOGIN':
       return action.payload
-    },
-  },
-})
+    case 'LOGOUT':
+      return null
+    default:
+      return state
+  }
+}
 
-export const { login } = loginSlice.actions
-export default loginSlice.reducer
+export const login = (user) => {
+  return {
+    type: 'LOGIN',
+    payload: user,
+  }
+}
+
+export const logout = () => {
+  return {
+    type: 'LOGOUT',
+  }
+}
+
+export default loginReducer

@@ -5,7 +5,7 @@ const initialState = {
   type: 'EMPTY',
 }
 
-const notificationReducer = (state, action) => {
+const notificationReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'SET_ERROR_MSG':
       return {

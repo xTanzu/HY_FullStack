@@ -2,13 +2,15 @@
 
 import axios from 'axios'
 
-import store from '../store'
-
 const baseUrl = '/api/blogs'
+let token = undefined
 
-const getToken = () => {
-  const token = `Bearer ${store.getState().loggedInUser.token}`
-  return token
+const setToken = (newToken) => {
+  token = `Bearer ${newToken}`
+}
+
+const removeToken = () => {
+  token = undefined
 }
 
 const getAll = async () => {
@@ -18,7 +20,7 @@ const getAll = async () => {
 
 const post = async (blog) => {
   const config = {
-    headers: { Authorization: getToken() },
+    headers: { Authorization: token },
   }
   const response = await axios.post(baseUrl, blog, config)
   return response.data
@@ -26,7 +28,7 @@ const post = async (blog) => {
 
 const like = async (blog) => {
   const config = {
-    headers: { Authorization: getToken() },
+    headers: { Authorization: token },
   }
   blog = {
     ...blog,
@@ -39,10 +41,10 @@ const like = async (blog) => {
 
 const remove = async (blog) => {
   const config = {
-    headers: { Authorization: getToken() },
+    headers: { Authorization: token },
   }
   const response = await axios.delete(`${baseUrl}/${blog.id}`, config)
   return response.data
 }
 
-export default { getAll, post, like, remove }
+export default { setToken, removeToken, getAll, post, like, remove }

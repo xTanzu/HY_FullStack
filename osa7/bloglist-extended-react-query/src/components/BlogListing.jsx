@@ -1,8 +1,7 @@
 /** @format */
 
-import { useRef, useEffect, useContext } from 'react'
+import { useRef, useContext } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useDispatch, useSelector } from 'react-redux' // pitää poistaa
 
 import stateContext from '../context/stateContext'
 import blogService from '../services/blogs'
@@ -15,13 +14,11 @@ import Notification from './Notification'
 
 import { login } from '../reducers/loginReducer'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
-import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
 
 const BlogListing = () => {
   const blogFormWrapper = useRef()
   const [state, stateDispatch] = useContext(stateContext)
-  const dispatch = useDispatch()
-  const loggedInUser = useSelector((state) => state.loggedInUser)
+  const loggedInUser = state.loggedInUser
 
   const blogs = useQuery({
     queryKey: ['blogs'],
@@ -32,7 +29,6 @@ const BlogListing = () => {
   const newBlogMutation = useMutation({
     mutationFn: blogService.post,
     onSuccess: (newBlog) => {
-      console.log(newBlog)
       const blogList = queryClient.getQueryData(['blogs'])
       queryClient.setQueryData(['blogs'], blogList.concat(newBlog))
     },
@@ -61,7 +57,8 @@ const BlogListing = () => {
   })
 
   const logoutHandler = () => {
-    dispatch(login(null))
+    stateDispatch(login(null))
+    blogService.removeToken()
     window.localStorage.removeItem('loggedInUser')
   }
 
@@ -131,13 +128,7 @@ const BlogListing = () => {
           blogs.data
             .toSorted((a, b) => b.likes - a.likes)
             .map((blog) => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                loggedInUser={loggedInUser}
-                handleLike={handleLike}
-                handleRemove={handleRemove}
-              />
+              <Blog key={blog.id} blog={blog} handleLike={handleLike} handleRemove={handleRemove} />
             ))}
       </div>
       <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>

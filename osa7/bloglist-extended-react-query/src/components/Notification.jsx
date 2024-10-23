@@ -8,7 +8,7 @@ import { clearNotificationMsg } from '../reducers/notificationReducer'
 
 const Notification = () => {
   const [state, stateDispatch] = useContext(stateContext)
-  const { message, type } = state
+  const { message, type } = state.notification
   const timeoutRef = useRef(null)
 
   useEffect(() => {

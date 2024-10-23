@@ -2,8 +2,12 @@
 
 import { useState } from 'react'
 
-const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
+import { useAppState } from '../context/stateContext'
+
+const Blog = ({ blog, handleLike, handleRemove }) => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const appState = useAppState()
+  const loggedInUser = appState.loggedInUser
 
   const usersOwn = blog.user ? loggedInUser.user.id === blog.user.id : false
 
