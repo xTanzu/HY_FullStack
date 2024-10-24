@@ -1,6 +1,6 @@
 /** @format */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,15 +15,6 @@ const LoginForm = () => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const loggedInUserJSON = window.localStorage.getItem('loggedInUser')
-    if (loggedInUserJSON) {
-      const user = JSON.parse(loggedInUserJSON)
-      dispatch(login(user))
-      navigate('/')
-    }
-  }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -47,10 +38,31 @@ const LoginForm = () => {
     }
   }
 
+  const loginWrapperStyle = {
+    width: '60%',
+    padding: '20px',
+    margin: 'auto',
+    marginTop: '50vh',
+    transform: 'translate3d(0,-50%,0)',
+    background: 'lightgrey',
+  }
+
+  const headingStyle = {
+    textAlign: 'center',
+  }
+
+  const formStyle = {
+    display: 'flex',
+    flexFlow: 'column nowrap',
+    gap: 10,
+    alignItems: 'center',
+    // background: 'green',
+  }
+
   return (
-    <div className='loginForm'>
-      <h2>Log into application</h2>
-      <form onSubmit={handleLogin}>
+    <div className='loginWrapper' style={loginWrapperStyle}>
+      <h2 style={headingStyle}>Log into application</h2>
+      <form onSubmit={handleLogin} style={formStyle}>
         <div>
           <label htmlFor='username_field'>username</label>
           <input

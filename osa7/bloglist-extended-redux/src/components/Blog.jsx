@@ -1,8 +1,10 @@
 /** @format */
 
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
 
-const Blog = ({ blog, loggedInUser, handleLike, handleRemove }) => {
+const Blog = ({ blog, handleLike, handleRemove }) => {
+  const loggedInUser = useSelector((state) => state.loggedInUser)
   const [isExpanded, setIsExpanded] = useState(false)
 
   const usersOwn = blog.user ? loggedInUser.user.id === blog.user.id : false

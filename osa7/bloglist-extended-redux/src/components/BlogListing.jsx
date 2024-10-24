@@ -14,7 +14,6 @@ import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blo
 const BlogListing = () => {
   const blogFormWrapper = useRef()
   const dispatch = useDispatch()
-  const loggedInUser = useSelector((state) => state.loggedInUser)
   const blogs = useSelector((state) => state.blogs)
 
   useEffect(() => {
@@ -81,18 +80,12 @@ const BlogListing = () => {
   return (
     <>
       <div className='blogListing'>
-        <h2>blogs</h2>
+        <h2>Blogs</h2>
         <UserInfo />
         {blogs
           .toSorted((a, b) => b.likes - a.likes)
           .map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              loggedInUser={loggedInUser}
-              handleLike={handleLike}
-              handleRemove={handleRemove}
-            />
+            <Blog key={blog.id} blog={blog} handleLike={handleLike} handleRemove={handleRemove} />
           ))}
       </div>
       <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
