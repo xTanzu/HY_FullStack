@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate /*, useMatch*/ } from 'react-router-dom'
 
 import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
 import Users from './components/Users'
+import User from './components/User'
 import Notification from './components/Notification'
 
 import { login } from './reducers/loginReducer'
@@ -27,6 +28,9 @@ const App = () => {
   }
 
   useEffect(getUserFromStorage, [dispatch])
+
+  // const match = useMatch("/user/:id")
+  // const user = match ? vai haetaanko vasta näkymässä?
 
   if (isLoading) {
     return <div>Loading..</div>
@@ -49,6 +53,10 @@ const App = () => {
         <Route
           path='/users'
           element={loggedInUser ? <Users /> : <Navigate replace to='/login' />}
+        />
+        <Route
+          path='/user/:id'
+          element={loggedInUser ? <User /> : <Navigate replace to='/login' />}
         />
       </Routes>
       <Notification />
