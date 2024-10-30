@@ -9,7 +9,12 @@ import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
-import { setBlogList, addNewBlog, removeBlog, updateBlog } from '../reducers/blogReducer'
+import {
+  setBlogList,
+  setBlog,
+  addNewBlog,
+  removeBlog /*, updateBlog*/,
+} from '../reducers/blogReducer'
 
 const BlogListing = () => {
   const blogFormWrapper = useRef()
@@ -43,7 +48,7 @@ const BlogListing = () => {
   const handleLike = async (blog) => {
     try {
       const likedBlog = await blogService.like(blog)
-      dispatch(updateBlog(likedBlog))
+      dispatch(setBlog(likedBlog))
       dispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
       handleAxiosException(exception)

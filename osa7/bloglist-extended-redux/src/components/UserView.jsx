@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 
 import userService from '../services/users'
 
@@ -38,7 +38,11 @@ const UserView = () => {
       <h4>added blogs</h4>
       <ul>
         {user.blogs.map((blog) => {
-          return <li key={blog.id}>{blog.title}</li>
+          return (
+            <li key={blog.id}>
+              <Link to={`/blog/${blog.id}`}>{blog.title}</Link>
+            </li>
+          )
         })}
       </ul>
     </div>

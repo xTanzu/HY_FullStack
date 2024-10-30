@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 const Blog = ({ blog, handleLike, handleRemove }) => {
   const loggedInUser = useSelector((state) => state.loggedInUser)
@@ -37,7 +38,7 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
   return (
     <div className='blogItemWrapper' style={wrapperStyle}>
       <p data-testid='titleAndAuthor' style={paragraphStyle}>
-        {blog.title}, {blog.author}
+        <Link to={`/blog/${blog.id}`}>{blog.title}</Link>, {blog.author}
         <button data-testid='toggleShowBtn' onClick={toggleExpand}>
           {isExpanded ? 'hide' : 'show'}
         </button>

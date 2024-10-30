@@ -16,6 +16,11 @@ const getAll = async () => {
   return response.data
 }
 
+const getById = async (id) => {
+  const response = await axios.get(`${baseUrl}/${id}`)
+  return response.data
+}
+
 const post = async (blog) => {
   const config = {
     headers: { Authorization: getToken() },
@@ -45,4 +50,4 @@ const remove = async (blog) => {
   return response.data
 }
 
-export default { getAll, post, like, remove }
+export default { getAll, getById, post, like, remove }

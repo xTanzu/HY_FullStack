@@ -17,6 +17,19 @@ blogsRouter.get("/", async (request, response, next) => {
   }
 });
 
+blogsRouter.get("/:id", async (request, response, next) => {
+  try {
+    const blog = await Blog.findById(request.params.id). populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
+    })
+    response.status(200).json(blog)
+  } catch(exception) {
+    next(exception);
+  }
+})
+
 blogsRouter.post("/", async (request, response, next) => {
   try {
     const { title, author, url, likes } = { ...request.body };

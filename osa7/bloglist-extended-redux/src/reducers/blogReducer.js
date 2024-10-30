@@ -9,6 +9,13 @@ const blogSlice = createSlice({
     setBlogList: (state, action) => {
       return [...action.payload]
     },
+    setBlog: (state, action) => {
+      const updatedBlog = action.payload
+      if (state.some((blog) => blog.id === updatedBlog.id)) {
+        return state.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog))
+      }
+      return state.concat(updatedBlog)
+    },
     addNewBlog: (state, action) => {
       return [...state, { ...action.payload }]
     },
@@ -16,13 +23,9 @@ const blogSlice = createSlice({
       const blogToRemove = action.payload
       return state.filter((blog) => blog.id !== blogToRemove.id)
     },
-    updateBlog: (state, action) => {
-      const updatedBlog = action.payload
-      return state.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog))
-    },
   },
 })
 
-export const { setBlogList, addNewBlog, removeBlog, updateBlog } = blogSlice.actions
+export const { setBlogList, setBlog, addNewBlog, removeBlog /*, updateBlog*/ } = blogSlice.actions
 
 export default blogSlice.reducer

@@ -8,6 +8,7 @@ import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
 import Users from './components/Users'
 import UserView from './components/UserView'
+import BlogView from './components/BlogView'
 import Notification from './components/Notification'
 
 import { login } from './reducers/loginReducer'
@@ -57,6 +58,10 @@ const App = () => {
         <Route
           path='/user/:id'
           element={loggedInUser ? <UserView /> : <Navigate replace to='/login' />}
+        />
+        <Route
+          path='/blog/:id'
+          element={loggedInUser ? <BlogView /> : <Navigate replace to='/login' />}
         />
       </Routes>
       <Notification />
