@@ -10,7 +10,7 @@ import UserInfo from './UserInfo'
 
 import { setUser } from '../reducers/userReducer'
 
-const User = () => {
+const UserView = () => {
   const id = useParams().id
   const dispatch = useDispatch()
   const users = useSelector((state) => state.users)
@@ -45,4 +45,4 @@ const User = () => {
   )
 }
 
-export default User
+export default UserView

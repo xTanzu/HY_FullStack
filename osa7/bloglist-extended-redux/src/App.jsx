@@ -7,7 +7,7 @@ import { Routes, Route, Navigate /*, useMatch*/ } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 import BlogListing from './components/BlogListing'
 import Users from './components/Users'
-import User from './components/User'
+import UserView from './components/UserView'
 import Notification from './components/Notification'
 
 import { login } from './reducers/loginReducer'
@@ -56,7 +56,7 @@ const App = () => {
         />
         <Route
           path='/user/:id'
-          element={loggedInUser ? <User /> : <Navigate replace to='/login' />}
+          element={loggedInUser ? <UserView /> : <Navigate replace to='/login' />}
         />
       </Routes>
       <Notification />
