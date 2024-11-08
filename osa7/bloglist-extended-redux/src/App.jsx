@@ -41,6 +41,7 @@ const App = () => {
     width: '60%',
     margin: 'auto',
     // background: 'red',
+    fontFamily: 'Helvetica, Arial, Sans-Serif',
   }
 
   return (

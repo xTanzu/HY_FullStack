@@ -17,12 +17,11 @@ const UserInfo = () => {
   const wrapperStyle = {
     display: 'flex',
     justifyContent: 'space-around',
-    // background: 'red',
+    background: 'grey',
   }
 
   const linkStyle = {
-    margin: '0 10px',
-    padding: '5px 10px',
+    padding: '5px 40px',
     border: '2px solid black',
     borderRadius: 8,
     textDecoration: 'none',
@@ -31,16 +30,22 @@ const UserInfo = () => {
   }
 
   const linkWrapperStyle = {
-    // padding: '10px 20px',
-    // border: '2px solid black',
-    // borderRadius: 8,
+    padding: 5,
+    display: 'flex',
+    gap: 20,
   }
 
   const loggerCtrlStyle = {
     display: 'flex',
+    alignItems: 'center',
     gap: 20,
     padding: '0 10px',
-    // background: 'lightgrey',
+    // background: 'red',
+  }
+
+  const loggedInStyle = {
+    color: 'white',
+    fontWeight: 'bold',
   }
 
   return (
@@ -56,7 +61,9 @@ const UserInfo = () => {
           </Link>
         </div>
         <div className='logged_ctrl' style={loggerCtrlStyle}>
-          <div>{loggedInUser ? `${loggedInUser.user.name} logged in` : ''}</div>
+          <div style={loggedInStyle}>
+            {loggedInUser ? `${loggedInUser.user.name} logged in` : ''}
+          </div>
           <button className='logoutBtn' onClick={logoutHandler}>
             logout
           </button>
