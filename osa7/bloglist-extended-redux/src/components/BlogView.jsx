@@ -43,6 +43,8 @@ const BlogWiew = () => {
     return <div>loading..</div>
   }
 
+  console.log(blog)
+
   return (
     <div>
       <h2>{blog.title}</h2>
@@ -55,6 +57,15 @@ const BlogWiew = () => {
         <button onClick={() => handleLike(blog)}>like</button>
       </div>
       added by: {blog.user.name}
+      <div>
+        <h3>comments:</h3>
+        <ul>
+          {blog.comments &&
+            blog.comments.map((comment, indx) => (
+              <li key={`${blog.id}.comment[${indx}]`}>{comment}</li>
+            ))}
+        </ul>
+      </div>
     </div>
   )
 }

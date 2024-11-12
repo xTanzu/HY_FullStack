@@ -32,6 +32,7 @@ const UserInfo = () => {
   const linkWrapperStyle = {
     padding: 5,
     display: 'flex',
+    alignItems: 'center',
     gap: 20,
   }
 

@@ -33,6 +33,8 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: `"${value}" as ${key} is already taken` })
   } else if (err.name === "AuthorizationError") {
     return res.status(401).json({ error: "user not identified, authorization required" })
+  } else if (err.name === "RequestFormatError") {
+    return res.status(400).json({ error: "malformatted request" })
   }
 
   next(err)

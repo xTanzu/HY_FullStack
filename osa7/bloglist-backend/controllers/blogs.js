@@ -3,6 +3,9 @@ const User = require("../models/user");
 const Blog = require("../models/blog");
 const jwt = require("jsonwebtoken");
 const AuthorizationError = require("../errors/AuthorizationError.js");
+const RequestFormatError = require("../errors/RequestFormatError.js")
+// poista
+const logger = require("../utils/logger")
 
 blogsRouter.get("/", async (request, response, next) => {
   try {
@@ -19,7 +22,7 @@ blogsRouter.get("/", async (request, response, next) => {
 
 blogsRouter.get("/:id", async (request, response, next) => {
   try {
-    const blog = await Blog.findById(request.params.id). populate("user", {
+    const blog = await Blog.findById(request.params.id).populate("user", {
       username: 1,
       name: 1,
       id: 1,
@@ -100,5 +103,30 @@ blogsRouter.put("/:id", async (request, response, next) => {
     next(exception);
   }
 });
+
+blogsRouter.post("/:id/comments", async (request, response, next) => {
+  try {
+    const trimAndValidate = (comment) => {
+      if (!comment) {
+        throw new RequestFormatError();
+      }
+      const trimmedComment = comment.trim()
+      if (trimmedComment === "") {
+        throw new RequestFormatError();
+      }
+      return trimmedComment
+    }
+
+    const comment = trimAndValidate(request.body.comment)
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      { $push: { comments: comment } },
+      { new: true }
+    )
+    response.status(201).json(updatedBlog);
+  } catch(exception) {
+    next(exception);
+  }
+})
 
 module.exports = blogsRouter;
