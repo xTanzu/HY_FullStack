@@ -7,8 +7,9 @@ import { useParams } from 'react-router-dom'
 import blogService from '../services/blogs'
 
 import UserInfo from './UserInfo'
+import CommentForm from './CommentForm'
 
-import { setSuccessMsg } from '../reducers/notificationReducer'
+import { setSuccessMsg, setErrorMsg } from '../reducers/notificationReducer'
 import { setBlog } from '../reducers/blogReducer'
 
 const BlogWiew = () => {
@@ -35,15 +36,25 @@ const BlogWiew = () => {
       dispatch(setBlog(likedBlog))
       dispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
     } catch (exception) {
-      handleAxiosException(exception)
+      dispatch(setErrorMsg(exception.message))
+    }
+  }
+
+  const submitComment = async (blog, comment) => {
+    try {
+      const commentedBlog = await blogService.comment(blog, comment)
+      dispatch(setBlog(commentedBlog))
+      dispatch(setSuccessMsg(`commented blog "${blog.title}"`))
+      return true
+    } catch (exception) {
+      dispatch(setErrorMsg(exception.message))
+      return false
     }
   }
 
   if (blog === null) {
     return <div>loading..</div>
   }
-
-  console.log(blog)
 
   return (
     <div>
@@ -59,6 +70,7 @@ const BlogWiew = () => {
       added by: {blog.user.name}
       <div>
         <h3>comments:</h3>
+        <CommentForm blog={blog} submitComment={submitComment} />
         <ul>
           {blog.comments &&
             blog.comments.map((comment, indx) => (

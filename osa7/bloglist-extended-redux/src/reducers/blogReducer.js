@@ -23,9 +23,18 @@ const blogSlice = createSlice({
       const blogToRemove = action.payload
       return state.filter((blog) => blog.id !== blogToRemove.id)
     },
+    // Täysin turhaa työtä..
+    // addNewComment: (state, action) => {
+    //   const blogToComment = action.payload.blog
+    //   const comment = action.payload.comment
+    //   return state.map((blog) =>
+    //     blog.id !== blogToComment.id ? blog : { ...blog, comments: blog.comments.concat(comment) },
+    //   )
+    // },
   },
 })
 
-export const { setBlogList, setBlog, addNewBlog, removeBlog /*, updateBlog*/ } = blogSlice.actions
+export const { setBlogList, setBlog, addNewBlog, removeBlog /*, addNewComment*/ } =
+  blogSlice.actions
 
 export default blogSlice.reducer
