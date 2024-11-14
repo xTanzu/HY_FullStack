@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
+import colors from '../constants/colors'
+import styles from '../constants/styles'
+
 const Blog = ({ blog, handleLike, handleRemove }) => {
   const loggedInUser = useSelector((state) => state.loggedInUser)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -21,56 +24,108 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
   }
 
   const wrapperStyle = {
-    marginBottom: 8,
-    border: '2px solid black',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    padding: 10,
+    borderRadius: 10,
+    background: colors.mainWhite,
   }
 
-  const paragraphStyle = {
-    margin: 4,
+  const blogFieldStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // background: 'red',
+  }
+
+  const titleAndAuthorWrapperStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  }
+
+  const titleStyle = {
+    // marginBottom: 8,
+    fontSize: 20,
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    color: colors.textGrey,
+    // background: 'red',
+  }
+
+  const subTextStyle = {
+    color: colors.textAccent,
+    marginLeft: 12,
+  }
+
+  const authorStyle = {
+    marginLeft: 6,
+  }
+
+  const smallTextStyle = {
+    fontSize: 14,
+  }
+
+  const buttonWrapperStyle = {
+    justifyContent: 'flex-start',
+  }
+
+  const likeButtonStyle = {
+    background: colors.likeBtnBlue,
   }
 
   const removeButtonStyle = {
-    margin: 4,
-    border: '1px solid red',
-    color: 'red',
+    marginLeft: 10,
+    background: 'fireBrick',
   }
 
   return (
     <div className='blogItemWrapper' style={wrapperStyle}>
-      <p data-testid='titleAndAuthor' style={paragraphStyle}>
-        <Link to={`/blog/${blog.id}`}>{blog.title}</Link>, {blog.author}
-        <button data-testid='toggleShowBtn' onClick={toggleExpand}>
+      <div data-testid='titleAndAuthor' style={blogFieldStyle}>
+        <div style={titleAndAuthorWrapperStyle}>
+          <Link to={`/blog/${blog.id}`} style={titleStyle}>
+            {blog.title}
+          </Link>
+          <div style={{ ...subTextStyle, ...authorStyle }}>{blog.author}</div>
+        </div>
+        <button style={styles.roundedBtn} data-testid='toggleShowBtn' onClick={toggleExpand}>
           {isExpanded ? 'hide' : 'show'}
         </button>
-      </p>
+      </div>
 
       {isExpanded && (
-        <p data-testid='url' style={paragraphStyle}>
+        <div data-testid='url' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
           {blog.url}
-        </p>
+        </div>
       )}
       {isExpanded && (
-        <p data-testid='likes' style={paragraphStyle}>
-          likes: {blog.likes}{' '}
+        <div data-testid='likes' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
+          likes: {blog.likes}
+        </div>
+      )}
+      {isExpanded && (
+        <div data-testid='user' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
+          {blog.user ? blog.user.name : 'user not defined'}
+        </div>
+      )}
+      {isExpanded && (
+        <div style={{ ...blogFieldStyle, ...subTextStyle, ...buttonWrapperStyle }}>
           <button
+            style={{ ...styles.roundedBtn, ...likeButtonStyle }}
             data-testid='likeBtn'
             onClick={() => {
               handleLike(blog)
             }}
           >
             like
-          </button>{' '}
-        </p>
-      )}
-      {isExpanded && (
-        <p data-testid='user' style={paragraphStyle}>
-          {blog.user ? blog.user.name : 'user not defined'}
-        </p>
-      )}
-      {isExpanded && usersOwn && (
-        <button style={removeButtonStyle} onClick={confirmRemove}>
-          remove
-        </button>
+          </button>
+          {usersOwn && (
+            <button style={{ ...styles.roundedBtn, ...removeButtonStyle }} onClick={confirmRemove}>
+              remove
+            </button>
+          )}
+        </div>
       )}
     </div>
   )

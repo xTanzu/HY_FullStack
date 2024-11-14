@@ -3,6 +3,8 @@
 import { useState, useImperativeHandle, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
+import styles from '../constants/styles'
+
 const Togglable = forwardRef(({ buttonLabel, children }, ref) => {
   const [visible, setVisible] = useState(false)
 
@@ -26,7 +28,9 @@ const Togglable = forwardRef(({ buttonLabel, children }, ref) => {
   return (
     <div className='toggleWrapper'>
       <div style={showWhenVisibleStyle}>{children}</div>
-      <button onClick={toggleVisible}>{visible ? 'cancel' : buttonLabel}</button>
+      <button style={styles.roundedBtn} onClick={toggleVisible}>
+        {visible ? 'cancel' : buttonLabel}
+      </button>
     </div>
   )
 })

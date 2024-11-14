@@ -9,12 +9,7 @@ import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable.jsx'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
-import {
-  setBlogList,
-  setBlog,
-  addNewBlog,
-  removeBlog /*, updateBlog*/,
-} from '../reducers/blogReducer'
+import { setBlogList, setBlog, addNewBlog, removeBlog } from '../reducers/blogReducer'
 
 const BlogListing = () => {
   const blogFormWrapper = useRef()
@@ -82,20 +77,28 @@ const BlogListing = () => {
     }
   }
 
+  const listingWrapperStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  }
+
   return (
     <>
       <div className='blogListing'>
         <h2>Blogs</h2>
         <UserInfo />
-        {blogs
-          .toSorted((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog key={blog.id} blog={blog} handleLike={handleLike} handleRemove={handleRemove} />
-          ))}
+        <div className='listingWrapper' style={listingWrapperStyle}>
+          {blogs
+            .toSorted((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <Blog key={blog.id} blog={blog} handleLike={handleLike} handleRemove={handleRemove} />
+            ))}
+          <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
+            <BlogForm handleNewBlog={handleNewBlog} />
+          </Togglable>
+        </div>
       </div>
-      <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
-        <BlogForm handleNewBlog={handleNewBlog} />
-      </Togglable>
     </>
   )
 }
