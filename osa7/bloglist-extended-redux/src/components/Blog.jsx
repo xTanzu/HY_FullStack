@@ -23,15 +23,6 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
     }
   }
 
-  const wrapperStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    padding: 10,
-    borderRadius: 10,
-    background: colors.mainWhite,
-  }
-
   const blogFieldStyle = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -43,20 +34,6 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-  }
-
-  const titleStyle = {
-    // marginBottom: 8,
-    fontSize: 20,
-    fontWeight: 'bold',
-    textDecoration: 'none',
-    color: colors.textGrey,
-    // background: 'red',
-  }
-
-  const subTextStyle = {
-    color: colors.textAccent,
-    marginLeft: 12,
   }
 
   const authorStyle = {
@@ -81,13 +58,13 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
   }
 
   return (
-    <div className='blogItemWrapper' style={wrapperStyle}>
+    <div className='blogItemWrapper' style={styles.paneWrapper}>
       <div data-testid='titleAndAuthor' style={blogFieldStyle}>
         <div style={titleAndAuthorWrapperStyle}>
-          <Link to={`/blog/${blog.id}`} style={titleStyle}>
+          <Link to={`/blog/${blog.id}`} style={styles.subTitle}>
             {blog.title}
           </Link>
-          <div style={{ ...subTextStyle, ...authorStyle }}>{blog.author}</div>
+          <div style={{ ...styles.indentedContent, ...authorStyle }}>{blog.author}</div>
         </div>
         <button style={styles.roundedBtn} data-testid='toggleShowBtn' onClick={toggleExpand}>
           {isExpanded ? 'hide' : 'show'}
@@ -95,22 +72,33 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
       </div>
 
       {isExpanded && (
-        <div data-testid='url' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
-          {blog.url}
+        <div
+          data-testid='url'
+          style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
+        >
+          <a href={blog.url} target='_blank'>
+            {blog.url}
+          </a>
         </div>
       )}
       {isExpanded && (
-        <div data-testid='likes' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
+        <div
+          data-testid='likes'
+          style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
+        >
           likes: {blog.likes}
         </div>
       )}
       {isExpanded && (
-        <div data-testid='user' style={{ ...blogFieldStyle, ...subTextStyle, ...smallTextStyle }}>
+        <div
+          data-testid='user'
+          style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
+        >
           {blog.user ? blog.user.name : 'user not defined'}
         </div>
       )}
       {isExpanded && (
-        <div style={{ ...blogFieldStyle, ...subTextStyle, ...buttonWrapperStyle }}>
+        <div style={{ ...blogFieldStyle, ...styles.indentedContent, ...buttonWrapperStyle }}>
           <button
             style={{ ...styles.roundedBtn, ...likeButtonStyle }}
             data-testid='likeBtn'

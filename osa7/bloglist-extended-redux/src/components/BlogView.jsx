@@ -61,7 +61,7 @@ const BlogWiew = () => {
       <h2>{blog.title}</h2>
       <UserInfo />
       <div>
-        <a href={`http://${blog.url}`} target='_blank'>
+        <a href={blog.url} target='_blank'>
           {blog.url}
         </a>
       </div>

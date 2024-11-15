@@ -13,6 +13,7 @@ const Togglable = forwardRef(({ buttonLabel, children }, ref) => {
   // }
   const showWhenVisibleStyle = {
     display: visible ? '' : 'none',
+    marginBottom: 10,
   }
 
   const toggleVisible = () => {

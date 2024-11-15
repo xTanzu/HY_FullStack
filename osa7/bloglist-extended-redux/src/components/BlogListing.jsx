@@ -11,6 +11,9 @@ import Togglable from './Togglable.jsx'
 import { setErrorMsg, setSuccessMsg } from '../reducers/notificationReducer'
 import { setBlogList, setBlog, addNewBlog, removeBlog } from '../reducers/blogReducer'
 
+import colors from '../constants/colors'
+import styles from '../constants/styles'
+
 const BlogListing = () => {
   const blogFormWrapper = useRef()
   const dispatch = useDispatch()
@@ -86,7 +89,7 @@ const BlogListing = () => {
   return (
     <>
       <div className='blogListing'>
-        <h2>Blogs</h2>
+        <h1 style={styles.titleStyle}>Blogs</h1>
         <UserInfo />
         <div className='listingWrapper' style={listingWrapperStyle}>
           {blogs

@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom'
 
 import { login } from '../reducers/loginReducer'
 
+import styles from '../constants/styles'
+import colors from '../constants/colors'
+
 const UserInfo = () => {
   const dispatch = useDispatch()
   const loggedInUser = useSelector((state) => state.loggedInUser)
@@ -16,8 +19,9 @@ const UserInfo = () => {
 
   const wrapperStyle = {
     display: 'flex',
-    justifyContent: 'space-around',
-    background: 'grey',
+    justifyContent: 'space-between',
+    borderRadius: 10,
+    background: colors.mainWhite,
   }
 
   const linkStyle = {
@@ -45,7 +49,7 @@ const UserInfo = () => {
   }
 
   const loggedInStyle = {
-    color: 'white',
+    color: colors.textGrey,
     fontWeight: 'bold',
   }
 
@@ -54,10 +58,10 @@ const UserInfo = () => {
       <br />
       <div className='user_info_wrapper' style={wrapperStyle}>
         <div className='link_wrapper' style={linkWrapperStyle}>
-          <Link style={linkStyle} to='/'>
+          <Link style={styles.roundedBtn} to='/'>
             Blogs
           </Link>
-          <Link style={linkStyle} to='/users'>
+          <Link style={styles.roundedBtn} to='/users'>
             Users
           </Link>
         </div>
@@ -65,7 +69,7 @@ const UserInfo = () => {
           <div style={loggedInStyle}>
             {loggedInUser ? `${loggedInUser.user.name} logged in` : ''}
           </div>
-          <button className='logoutBtn' onClick={logoutHandler}>
+          <button style={styles.roundedBtn} className='logoutBtn' onClick={logoutHandler}>
             logout
           </button>
         </div>
