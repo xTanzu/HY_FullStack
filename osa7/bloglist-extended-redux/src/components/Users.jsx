@@ -10,6 +10,9 @@ import UserInfo from './UserInfo'
 
 import { setUserList } from '../reducers/userReducer'
 
+import colors from '../constants/colors'
+import styles from '../constants/styles'
+
 const Users = () => {
   const dispatch = useDispatch()
   const users = useSelector((state) => state.users)
@@ -24,36 +27,57 @@ const Users = () => {
   }
 
   const tableStyle = {
-    borderCollapse: 'collapse',
+    width: '100%',
+    borderCollapse: 'separate',
+    borderSpacing: '0 10px',
+  }
+
+  const theadStyle = {
+    background: colors.textGrey,
+    color: colors.mainWhite,
   }
 
   const rowStyle = {
+    // lineHeight: 2,
+    textIndent: 16,
     borderBottom: '1px solid #aaa',
+    background: colors.mainWhite,
+    color: colors.textGrey,
   }
 
-  const dataStyle = {
+  const usernameStyle = {
+    padding: '10px 40px',
     textAlign: 'center',
+    borderRadius: '10px 0 0 10px',
+    fontWeight: 'bold',
+  }
+
+  const blogsCreatedStyle = {
+    padding: '10px 40px',
+    textAlign: 'center',
+    borderRadius: '0 10px 10px 0',
+    fontWeight: 'bold',
   }
 
   return (
     <div>
-      <h2>Users</h2>
+      <h1 style={styles.title}>Users</h1>
       <UserInfo />
       <table style={tableStyle}>
         <thead>
-          <tr>
-            <th></th>
-            <th>blogs created</th>
+          <tr style={{ ...rowStyle, ...theadStyle }}>
+            <th style={usernameStyle}>username</th>
+            <th style={blogsCreatedStyle}>blogs created</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => {
             return (
               <tr key={user.id} style={rowStyle}>
-                <td>
+                <td style={usernameStyle}>
                   <Link to={`/user/${user.id}`}>{user.name}</Link>
                 </td>
-                <td style={dataStyle}>{user.blogs.length}</td>
+                <td style={blogsCreatedStyle}>{user.blogs.length}</td>
               </tr>
             )
           })}

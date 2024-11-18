@@ -89,7 +89,7 @@ const BlogListing = () => {
   return (
     <>
       <div className='blogListing'>
-        <h1 style={styles.titleStyle}>Blogs</h1>
+        <h1 style={styles.title}>Blogs</h1>
         <UserInfo />
         <div className='listingWrapper' style={listingWrapperStyle}>
           {blogs
