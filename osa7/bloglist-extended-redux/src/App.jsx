@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Routes, Route, Navigate /*, useMatch*/ } from 'react-router-dom'
 
 import LoginForm from './components/LoginForm'
-import BlogListing from './components/BlogListing'
+import Blogs from './components/Blogs'
 import Users from './components/Users'
 import UserView from './components/UserView'
 import BlogView from './components/BlogView'
@@ -48,10 +48,7 @@ const App = () => {
     <div style={appWrapper}>
       <Routes>
         <Route path='/login' element={<LoginForm />} />
-        <Route
-          path='/'
-          element={loggedInUser ? <BlogListing /> : <Navigate replace to='/login' />}
-        />
+        <Route path='/' element={loggedInUser ? <Blogs /> : <Navigate replace to='/login' />} />
         <Route
           path='/users'
           element={loggedInUser ? <Users /> : <Navigate replace to='/login' />}
