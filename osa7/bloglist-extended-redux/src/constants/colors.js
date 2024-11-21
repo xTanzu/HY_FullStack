@@ -6,6 +6,7 @@ const colors = {
   blue: 'rgb(0, 0, 255)',
   mainWhite: 'rgb(255, 255, 255)',
   textGrey: '#555',
+  lightGrey: '#999',
   textAccent: 'rgb(135, 150, 190)',
   textAccentDark: `rgb(${135 / 2}, ${150 / 2}, ${190 / 2})`,
   bgBlue: 'rgb(246, 249, 258)',

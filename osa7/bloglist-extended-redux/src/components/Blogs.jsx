@@ -46,9 +46,7 @@ const Blogs = () => {
   }
 
   const listingWrapperStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
+    background: 'none',
   }
 
   return (
@@ -56,7 +54,7 @@ const Blogs = () => {
       <div className='blogListing'>
         <h1 style={styles.title}>Blogs</h1>
         <UserInfo />
-        <div className='listingWrapper' style={listingWrapperStyle}>
+        <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
           <BlogListing blogs={blogs} />
           <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
             <BlogForm handleNewBlog={handleNewBlog} />

@@ -17,7 +17,7 @@ const subTitle = {
 const paneWrapper = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 8,
+  gap: 10,
   padding: 10,
   borderRadius: 10,
   background: colors.mainWhite,

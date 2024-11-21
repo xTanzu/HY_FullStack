@@ -7,8 +7,12 @@ import { useParams, Link } from 'react-router-dom'
 import userService from '../services/users'
 
 import UserInfo from './UserInfo'
+import BlogListing from './BlogListing'
 
 import { setUser } from '../reducers/userReducer'
+
+import colors from '../constants/colors'
+import styles from '../constants/styles'
 
 const UserView = () => {
   const id = useParams().id
@@ -27,24 +31,26 @@ const UserView = () => {
     dispatch(setUser(updatedUser))
   }
 
+  const listingWrapperStyle = {
+    background: colors.lightGrey,
+  }
+
+  const blogsTitleStyle = {
+    color: colors.mainWhite,
+  }
+
   if (user === null) {
     return <div>loading..</div>
   }
 
   return (
     <div>
-      <h2>{user.name}</h2>
+      <h1 style={styles.title}>{user.name}</h1>
       <UserInfo />
-      <h4>added blogs</h4>
-      <ul>
-        {user.blogs.map((blog) => {
-          return (
-            <li key={blog.id}>
-              <Link to={`/blog/${blog.id}`}>{blog.title}</Link>
-            </li>
-          )
-        })}
-      </ul>
+      <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
+        <h2 style={{ ...styles.title, ...blogsTitleStyle }}>added blogs</h2>
+        <BlogListing blogs={user.blogs} />
+      </div>
     </div>
   )
 }
