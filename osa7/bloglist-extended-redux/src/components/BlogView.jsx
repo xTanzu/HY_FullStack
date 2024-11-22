@@ -7,10 +7,13 @@ import { useParams } from 'react-router-dom'
 import blogService from '../services/blogs'
 
 import UserInfo from './UserInfo'
-import CommentForm from './CommentForm'
+import Blog from './Blog'
+import Comments from './Comments'
 
-import { setSuccessMsg, setErrorMsg } from '../reducers/notificationReducer'
 import { setBlog } from '../reducers/blogReducer'
+
+import colors from '../constants/colors'
+import styles from '../constants/styles'
 
 const BlogWiew = () => {
   const id = useParams().id
@@ -29,27 +32,9 @@ const BlogWiew = () => {
     dispatch(setBlog(updatedBlog))
   }
 
-  // Tää pitäis tuoda jostain ulkoota
-  const handleLike = async (blog) => {
-    try {
-      const likedBlog = await blogService.like(blog)
-      dispatch(setBlog(likedBlog))
-      dispatch(setSuccessMsg(`liked blog "${blog.title}" by ${blog.author}`))
-    } catch (exception) {
-      dispatch(setErrorMsg(exception.message))
-    }
-  }
-
-  const submitComment = async (blog, comment) => {
-    try {
-      const commentedBlog = await blogService.comment(blog, comment)
-      dispatch(setBlog(commentedBlog))
-      dispatch(setSuccessMsg(`commented blog "${blog.title}"`))
-      return true
-    } catch (exception) {
-      dispatch(setErrorMsg(exception.message))
-      return false
-    }
+  const blogWrapperStyle = {
+    background: 'none',
+    // background: colors.lightGrey,
   }
 
   if (blog === null) {
@@ -60,25 +45,9 @@ const BlogWiew = () => {
     <div>
       <h2>{blog.title}</h2>
       <UserInfo />
-      <div>
-        <a href={blog.url} target='_blank'>
-          {blog.url}
-        </a>
-      </div>
-      <div>
-        likes: {blog.likes}
-        <button onClick={() => handleLike(blog)}>like</button>
-      </div>
-      added by: {blog.user.name}
-      <div>
-        <h3>comments:</h3>
-        <CommentForm blog={blog} submitComment={submitComment} />
-        <ul>
-          {blog.comments &&
-            blog.comments.map((comment, indx) => (
-              <li key={`${blog.id}.comment[${indx}]`}>{comment}</li>
-            ))}
-        </ul>
+      <div style={{ ...styles.paneWrapper, ...blogWrapperStyle }}>
+        <Blog blog={blog} isExpandable={false} />
+        <Comments blog={blog} />
       </div>
     </div>
   )

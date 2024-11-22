@@ -43,6 +43,8 @@ const UserView = () => {
     return <div>loading..</div>
   }
 
+  // sisään tulevan blogin id ei jotenkin näy kun blogia tykkää, jokin meni rikki. Katso miltä Blog objekti näyttää sisältä
+
   return (
     <div>
       <h1 style={styles.title}>{user.name}</h1>

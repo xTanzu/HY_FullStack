@@ -50,18 +50,16 @@ const Blogs = () => {
   }
 
   return (
-    <>
-      <div className='blogListing'>
-        <h1 style={styles.title}>Blogs</h1>
-        <UserInfo />
-        <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
-          <BlogListing blogs={blogs} />
-          <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
-            <BlogForm handleNewBlog={handleNewBlog} />
-          </Togglable>
-        </div>
+    <div className='blogListing'>
+      <h1 style={styles.title}>Blogs</h1>
+      <UserInfo />
+      <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
+        <BlogListing blogs={blogs} />
+        <Togglable ref={blogFormWrapper} buttonLabel='New Blog'>
+          <BlogForm handleNewBlog={handleNewBlog} />
+        </Togglable>
       </div>
-    </>
+    </div>
   )
 }
 

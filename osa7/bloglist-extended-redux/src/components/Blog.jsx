@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useModifyBlog } from '../customHooks/useModifyBlog'
+
 import { Link } from 'react-router-dom'
 
 import colors from '../constants/colors'
 import styles from '../constants/styles'
 
-const Blog = ({ blog, handleLike, handleRemove }) => {
+const Blog = ({ blog, isExpandable = true }) => {
   const loggedInUser = useSelector((state) => state.loggedInUser)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(isExpandable ? false : true)
+  const { like, remove } = useModifyBlog()
 
   const usersOwn = blog.user ? loggedInUser.user.id === blog.user.id : false
 
@@ -19,7 +22,7 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
 
   const confirmRemove = () => {
     if (window.confirm(`Delete "${blog.title}" for good?`)) {
-      handleRemove(blog)
+      remove(blog)
     }
   }
 
@@ -66,9 +69,11 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
           </Link>
           <div style={{ ...styles.indentedContent, ...authorStyle }}>{blog.author}</div>
         </div>
-        <button style={styles.roundedBtn} data-testid='toggleShowBtn' onClick={toggleExpand}>
-          {isExpanded ? 'hide' : 'show'}
-        </button>
+        {isExpandable && (
+          <button style={styles.roundedBtn} data-testid='toggleShowBtn' onClick={toggleExpand}>
+            {isExpanded ? 'hide' : 'show'}
+          </button>
+        )}
       </div>
 
       {isExpanded && (
@@ -103,7 +108,7 @@ const Blog = ({ blog, handleLike, handleRemove }) => {
             style={{ ...styles.roundedBtn, ...likeButtonStyle }}
             data-testid='likeBtn'
             onClick={() => {
-              handleLike(blog)
+              like(blog)
             }}
           >
             like
