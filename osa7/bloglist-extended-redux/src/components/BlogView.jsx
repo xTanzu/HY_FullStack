@@ -43,7 +43,7 @@ const BlogWiew = () => {
 
   return (
     <div>
-      <h2>{blog.title}</h2>
+      <h2 style={styles.title}>{blog.title}</h2>
       <UserInfo />
       <div style={{ ...styles.paneWrapper, ...blogWrapperStyle }}>
         <Blog blog={blog} isExpandable={false} />

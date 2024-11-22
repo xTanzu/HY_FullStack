@@ -10,16 +10,33 @@ import styles from '../constants/styles'
 const Comments = ({ blog }) => {
   const { comment } = useModifyBlog()
 
+  const commentWrapper = {
+    padding: 20,
+  }
+
+  const titleStyle = {
+    margin: 0,
+  }
+
+  const commentStyle = {
+    padding: 6,
+    background: colors.lightestGrey,
+    color: colors.textGrey,
+    borderRadius: 10,
+  }
+
   return (
-    <div style={styles.paneWrapper}>
-      <h3>comments:</h3>
+    <div style={{ ...styles.paneWrapper, ...commentWrapper }}>
+      <h3 style={{ ...styles.title, ...titleStyle }}>comments:</h3>
       <CommentForm blog={blog} submitComment={comment} />
-      <ul>
+      <div style={styles.paneWrapper}>
         {blog.comments &&
           blog.comments.map((comment, indx) => (
-            <li key={`${blog.id}.comment[${indx}]`}>{comment}</li>
+            <div style={commentStyle} key={`${blog.id}.comment[${indx}]`}>
+              {comment}
+            </div>
           ))}
-      </ul>
+      </div>
     </div>
   )
 }
