@@ -40,4 +40,45 @@ const roundedBtn = {
   textDecoration: 'none',
 }
 
-export default { title, subTitle, paneWrapper, indentedContent, roundedBtn }
+const form = {
+  margin: 10,
+  display: 'flex',
+  flexFlow: 'column nowrap',
+  gap: 8,
+}
+
+const formInput = {
+  minWidth: 100,
+  height: 20,
+  flexGrow: 6,
+  border: `1px ${colors.textAccent} solid`,
+  borderRadius: 10,
+  paddingLeft: 8,
+  color: colors.textAccent,
+}
+
+const formFieldWrapper = {
+  display: 'flex',
+  flexFlow: 'row wrap',
+  justifyContent: 'flex-start',
+}
+
+const formLabel = {
+  // width: 50,
+  flexGrow: 1,
+  color: colors.textGrey,
+  // textAlign: 'center',
+  // background: 'red',
+}
+
+export default {
+  title,
+  subTitle,
+  paneWrapper,
+  indentedContent,
+  roundedBtn,
+  form,
+  formInput,
+  formFieldWrapper,
+  formLabel,
+}

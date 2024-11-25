@@ -9,6 +9,9 @@ import { login } from '../reducers/loginReducer'
 
 import loginService from '../services/login'
 
+import colors from '../constants/colors'
+import styles from '../constants/styles'
+
 const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -44,7 +47,6 @@ const LoginForm = () => {
     margin: 'auto',
     marginTop: '50vh',
     transform: 'translate3d(0,-50%,0)',
-    background: 'lightgrey',
   }
 
   const headingStyle = {
@@ -52,20 +54,31 @@ const LoginForm = () => {
   }
 
   const formStyle = {
-    display: 'flex',
-    flexFlow: 'column nowrap',
-    gap: 10,
+    // display: 'flex',
+    // flexFlow: 'column nowrap',
+    // gap: 10,
     alignItems: 'center',
     // background: 'green',
   }
 
+  const labelStyle = {
+    width: 80,
+  }
+
+  const buttonStyle = {
+    width: '50%',
+  }
+
   return (
-    <div className='loginWrapper' style={loginWrapperStyle}>
-      <h2 style={headingStyle}>Log into application</h2>
-      <form onSubmit={handleLogin} style={formStyle}>
-        <div>
-          <label htmlFor='username_field'>username</label>
+    <div className='loginWrapper' style={{ ...styles.paneWrapper, ...loginWrapperStyle }}>
+      <h2 style={{ ...styles.title, ...headingStyle }}>Log into application</h2>
+      <form onSubmit={handleLogin} style={{ ...styles.form, ...formStyle }}>
+        <div style={styles.formFieldWrapper}>
+          <label style={{ ...styles.formLabel, ...labelStyle }} htmlFor='username_field'>
+            username
+          </label>
           <input
+            style={styles.formInput}
             id='username_field'
             data-testid='username_field'
             type='text'
@@ -74,9 +87,12 @@ const LoginForm = () => {
             onChange={({ target }) => setUsername(target.value)}
           />
         </div>
-        <div>
-          <label htmlFor='password_field'>password</label>
+        <div style={styles.formFieldWrapper}>
+          <label style={{ ...styles.formLabel, ...labelStyle }} htmlFor='password_field'>
+            password
+          </label>
           <input
+            style={styles.formInput}
             id='password_field'
             data-testid='password_field'
             type='password'
@@ -85,7 +101,9 @@ const LoginForm = () => {
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type='submit'>login</button>
+        <button style={{ ...styles.roundedBtn, ...buttonStyle }} type='submit'>
+          login
+        </button>
       </form>
     </div>
   )

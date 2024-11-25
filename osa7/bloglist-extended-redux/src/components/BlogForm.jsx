@@ -33,46 +33,20 @@ const BlogForm = ({ handleNewBlog }) => {
     maxWidth: 400,
   }
 
-  const formStyle = {
-    margin: 10,
-    display: 'flex',
-    flexFlow: 'column nowrap',
-    gap: 8,
-  }
-
-  const formFieldWrapperStyle = {
-    display: 'flex',
-    flexFlow: 'row wrap',
-    justifyContent: 'flex-start',
-  }
-
-  const formLabelStyle = {
+  const labelStyle = {
     width: 50,
-    flexGrow: 1,
-    // textAlign: 'center',
-    // background: 'red',
-  }
-
-  const formInputStyle = {
-    minWidth: 100,
-    height: 20,
-    flexGrow: 6,
-    border: `1px ${colors.textAccent} solid`,
-    borderRadius: 10,
-    paddingLeft: 8,
-    color: colors.textAccent,
   }
 
   return (
     <div className='blogForm' style={{ ...styles.paneWrapper, ...formWrapperStyle }}>
       <div style={styles.subTitle}>create new</div>
-      <form style={{ ...styles.indentedContent, ...formStyle }} onSubmit={newBlogHandler}>
-        <div style={formFieldWrapperStyle}>
-          <label style={formLabelStyle} htmlFor='title_field'>
+      <form style={{ ...styles.indentedContent, ...styles.form }} onSubmit={newBlogHandler}>
+        <div style={styles.formFieldWrapper}>
+          <label style={{ ...styles.formLabel, ...labelStyle }} htmlFor='title_field'>
             title
           </label>
           <input
-            style={formInputStyle}
+            style={styles.formInput}
             id='title_field'
             type='text'
             value={newBlogTitle}
@@ -81,12 +55,12 @@ const BlogForm = ({ handleNewBlog }) => {
             onChange={({ target }) => setNewBlogTitle(target.value)}
           />
         </div>
-        <div style={formFieldWrapperStyle}>
-          <label style={formLabelStyle} htmlFor='author_field'>
+        <div style={styles.formFieldWrapper}>
+          <label style={{ ...styles.formLabel, ...labelStyle }} htmlFor='author_field'>
             author
           </label>
           <input
-            style={formInputStyle}
+            style={styles.formInput}
             id='author_field'
             type='text'
             value={newBlogAuthor}
@@ -95,12 +69,12 @@ const BlogForm = ({ handleNewBlog }) => {
             onChange={({ target }) => setNewBlogAuthor(target.value)}
           />
         </div>
-        <div style={formFieldWrapperStyle}>
-          <label style={formLabelStyle} htmlFor='URL_field'>
+        <div style={styles.formFieldWrapper}>
+          <label style={{ ...styles.formLabel, ...labelStyle }} htmlFor='URL_field'>
             URL
           </label>
           <input
-            style={formInputStyle}
+            style={styles.formInput}
             id='URL_field'
             type='text'
             value={newBlogURL}
