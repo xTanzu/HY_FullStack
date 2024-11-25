@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 
+import colors from '../constants/colors'
+import styles from '../constants/styles'
+
 const CommentForm = ({ blog, submitComment }) => {
   const [comment, setComment] = useState('')
 
@@ -16,6 +19,7 @@ const CommentForm = ({ blog, submitComment }) => {
   return (
     <form onSubmit={handleComment}>
       <input
+        style={styles.formInput}
         type='text'
         value={comment}
         name='comment'
