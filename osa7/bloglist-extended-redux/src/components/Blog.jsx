@@ -1,6 +1,6 @@
 /** @format */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useModifyBlog } from '../customHooks/useModifyBlog'
 
@@ -9,15 +9,30 @@ import { Link } from 'react-router-dom'
 import colors from '../constants/colors'
 import styles from '../constants/styles'
 
-const Blog = ({ blog, isExpandable = true }) => {
+const Blog = ({
+  blog,
+  isExpandable = true,
+  expand = undefined,
+  notifyChildChanged = undefined,
+}) => {
   const loggedInUser = useSelector((state) => state.loggedInUser)
-  const [isExpanded, setIsExpanded] = useState(isExpandable ? false : true)
+  const [isExpanded, setIsExpanded] = useState(expand === undefined ? false : expand)
   const { like, remove } = useModifyBlog()
 
   const usersOwn = blog.user ? loggedInUser.user.id === blog.user.id : false
 
+  useEffect(() => {
+    if (expand === undefined) {
+      return
+    }
+    setIsExpanded(expand)
+  }, [expand])
+
   const toggleExpand = (event) => {
     setIsExpanded(!isExpanded)
+    if (notifyChildChanged) {
+      notifyChildChanged()
+    }
   }
 
   const confirmRemove = () => {
@@ -76,7 +91,7 @@ const Blog = ({ blog, isExpandable = true }) => {
         )}
       </div>
 
-      {isExpanded && (
+      {(!isExpandable || isExpanded) && (
         <div
           data-testid='url'
           style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
@@ -86,7 +101,7 @@ const Blog = ({ blog, isExpandable = true }) => {
           </a>
         </div>
       )}
-      {isExpanded && (
+      {(!isExpandable || isExpanded) && (
         <div
           data-testid='likes'
           style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
@@ -94,7 +109,7 @@ const Blog = ({ blog, isExpandable = true }) => {
           likes: {blog.likes}
         </div>
       )}
-      {isExpanded && (
+      {(!isExpandable || isExpanded) && (
         <div
           data-testid='user'
           style={{ ...blogFieldStyle, ...styles.indentedContent, ...smallTextStyle }}
@@ -102,7 +117,7 @@ const Blog = ({ blog, isExpandable = true }) => {
           {blog.user ? blog.user.name : 'user not defined'}
         </div>
       )}
-      {isExpanded && (
+      {(!isExpandable || isExpanded) && (
         <div style={{ ...blogFieldStyle, ...styles.indentedContent, ...buttonWrapperStyle }}>
           <button
             style={{ ...styles.roundedBtn, ...likeButtonStyle }}

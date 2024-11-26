@@ -36,10 +36,6 @@ const UserView = () => {
     background: colors.lightGrey,
   }
 
-  const blogsTitleStyle = {
-    color: colors.mainWhite,
-  }
-
   if (user === null) {
     return <div>loading..</div>
   }
@@ -49,8 +45,7 @@ const UserView = () => {
       <h1 style={styles.title}>{user.name}</h1>
       <UserInfo />
       <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
-        <h2 style={{ ...styles.title, ...blogsTitleStyle }}>added blogs</h2>
-        <BlogListing blogs={usersBlogs} />
+        <BlogListing blogs={usersBlogs} title={'added blogs'} />
       </div>
     </div>
   )
