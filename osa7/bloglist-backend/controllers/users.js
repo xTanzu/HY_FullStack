@@ -6,7 +6,7 @@ const logger = require("../utils/logger")
 
 usersRouter.get("/", async (request, response, next) => {
   try {
-    const users = await User.find({}).populate("blogs", {title: 1, author: 1, url: 1, id: 1})
+    const users = await User.find({}).populate("blogs", {id: 1, title: 1, author: 1, url: 1, likes: 1, user: 1, comments: 1})
     response
       .status(200)
       .json(users)
@@ -17,7 +17,8 @@ usersRouter.get("/", async (request, response, next) => {
 
 usersRouter.get("/:id", async (request, response, next) => {
   try {
-    const user = await User.findById(request.params.id).populate("blogs", {title: 1, author: 1, url: 1, id: 1})
+    const user = await User.findById(request.params.id).populate("blogs", {id: 1, title: 1, author: 1, url: 1, likes: 1, user: 1, comments: 1})
+    console.log(user)
     response
       .status(200)
       .json(user)

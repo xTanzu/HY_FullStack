@@ -21,6 +21,7 @@ const UserView = () => {
   const user = users.some((user) => user.id === id)
     ? users.filter((user) => user.id === id)[0]
     : null
+  const usersBlogs = useSelector((state) => state.blogs.filter((blog) => blog.user.id === id))
 
   useEffect(() => {
     updateUser()
@@ -43,15 +44,13 @@ const UserView = () => {
     return <div>loading..</div>
   }
 
-  // sisään tulevan blogin id ei jotenkin näy kun blogia tykkää, jokin meni rikki. Katso miltä Blog objekti näyttää sisältä
-
   return (
     <div>
       <h1 style={styles.title}>{user.name}</h1>
       <UserInfo />
       <div className='listingWrapper' style={{ ...styles.paneWrapper, ...listingWrapperStyle }}>
         <h2 style={{ ...styles.title, ...blogsTitleStyle }}>added blogs</h2>
-        <BlogListing blogs={user.blogs} />
+        <BlogListing blogs={usersBlogs} />
       </div>
     </div>
   )
