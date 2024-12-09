@@ -1,8 +1,20 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import axios from "axios"
+
+const useNotes = (url) => {
+  const [notes, setNotes] = useState([])
+  useEffect(() => {
+    axios.get(url).then(response => {
+      setNotes(response.data)
+    })
+  }, [url])
+  return notes
+}
 
 const App = () => {
   const [counter, setCounter] = useState(0)
   const [values, setValues] = useState([])
+  const notes = useNotes(BACKEND_URL)
 
   const handleClick = () => {
     setCounter(counter + 1)
@@ -15,6 +27,7 @@ const App = () => {
       <button onClick={handleClick}>
         press to count
       </button>
+      <div>{notes.length} notes on the server {BACKEND_URL}</div>
     </div>
   )
 }
