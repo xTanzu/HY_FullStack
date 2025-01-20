@@ -1,1 +1,3 @@
 vite-sandbox/
+*.swp
+node_modules

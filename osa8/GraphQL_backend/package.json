@@ -2,9 +2,11 @@
   "name": "graphql_backend",
   "version": "1.0.0",
   "description": "A simple GraphQL-backend for a \"library\"",
-  "main": "index.js",
+  "main": "library-backend.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env NODE_ENV=development nodemon library-backend.js",
+    "start": "node library-backend.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/xTanzu/HY_FullStack/issues"
   },
-  "homepage": "https://github.com/xTanzu/HY_FullStack/tree/main#readme"
+  "homepage": "https://github.com/xTanzu/HY_FullStack/tree/main#readme",
+  "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "cross-env": "^7.0.3",
+    "graphql": "^16.10.0"
+  }
 }
