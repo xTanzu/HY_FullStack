@@ -1,0 +1,19 @@
+{
+  "name": "graphql_backend",
+  "version": "1.0.0",
+  "description": "A simple GraphQL-backend for a \"library\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xTanzu/HY_FullStack.git#main"
+  },
+  "author": "Taneli Härkönen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xTanzu/HY_FullStack/issues"
+  },
+  "homepage": "https://github.com/xTanzu/HY_FullStack/tree/main#readme"
+}
