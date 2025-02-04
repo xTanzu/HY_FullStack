@@ -1,6 +1,10 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 
+const { v1: uuid_v1 } = require('uuid')
+
+const { GraphQLError } = require('graphql')
+
 let authors = [
   {
     name: 'Robert Martin',
@@ -109,7 +113,7 @@ const typeDefs = `
   type Author {
     name: String!
     id: ID!
-    born: Int!
+    born: Int
     bookCount: Int!
   }
 
@@ -119,6 +123,15 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book]
     allAuthors: [Author]!
   }
+
+  type Mutation {
+    addBook(
+      title: String!, 
+      author: String!, 
+      published: Int!, 
+      genres: [String!]!
+    ): Book
+  }
 `
 
 const resolvers = {
@@ -126,10 +139,39 @@ const resolvers = {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: (root, args) => { 
+      if (args.author === undefined && args.includes === undefined) {
+        return books
+      }
       const bookFilter = book => book.author === args.author || book.genres.includes(args.genre)
       return books.filter(bookFilter)
     },
     allAuthors: () => authors
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      const newBook = (({ title, author, published, genres }) => ({ title, author, published, genres }))(args)
+      const bookExists = books.some(book => book.title === newBook.title)
+      if (bookExists) {
+        throw new GraphQLError('Book must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title
+          }
+        })
+      }
+      books = books.concat(newBook)
+      const authorExists = authors.some(author => author.name === newBook.author)
+      if (!authorExists) {
+        const newAuthor = { 
+          name: newBook.author,
+          id: uuid_v1(),
+          born: null
+        }
+        authors = authors.concat(newAuthor)
+        console.log(newAuthor)
+      }
+      return newBook
+    }
   },
   Author: {
     bookCount: (root) => books.filter(book => book.author == root.name).length
