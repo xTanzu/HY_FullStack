@@ -7,6 +7,10 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
+  return (
+    <h1>New Book view</h1>
+  )
+
   if (!props.show) {
     return null
   }

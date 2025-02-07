@@ -1,4 +1,9 @@
 const Books = (props) => {
+
+  return (
+    <h1>Books view</h1>
+  )
+
   if (!props.show) {
     return null
   }
