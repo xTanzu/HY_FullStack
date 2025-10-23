@@ -5,6 +5,20 @@ const { v1: uuid_v1 } = require('uuid')
 
 const { GraphQLError } = require('graphql')
 
+const Book = require('./models/book')
+const Author = require('./models/author')
+
+const conf = require("dotenv").config()
+require("dotenv-expand").expand(conf)
+
+
+const mongoose = require("mongoose")
+mongoose.set('strictQuery', false)
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.log("error in connection to MongoDB:", err.message))
+
+
 let authors = [
   {
     name: 'Robert Martin',
@@ -104,10 +118,10 @@ let books = [
 const typeDefs = `
   type Book {
     title: String!
-    published: Int
-    author: String!
+    published: Int!
+    author: Author! 
     id: ID!
-    genres: [String]!
+    genres: [String!]!
   }
 
   type Author {
@@ -138,43 +152,85 @@ const typeDefs = `
   }
 `
 
+// KAIKKI POIS KOMMENTOITU ON VANHA PAIKALLINEN TAPA HAKEA DATAA. UUSI VERSIO HAKEE MONGODB:STÄ
+// POISTETAAN KUN KAIKKI VALMIIT
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (root, args) => { 
+    // bookCount: () => books.length,
+    bookCount: async () => await Book.countDocuments(),
+    // authorCount: () => authors.length,
+    authorCount: async () => await Author.countDocuments(),
+    allBooks: async (root, args) => { 
       if (args.author === undefined && args.includes === undefined) {
-        return books
+        // return books
+        return await Book.find({}).populate('author')
       }
       const bookFilter = book => book.author === args.author || book.genres.includes(args.genre)
       return books.filter(bookFilter)
     },
-    allAuthors: () => authors
+    // allAuthors: () => authors
+    allAuthors: async () => Author.find({})
   },
   Mutation: {
-    addBook: (root, args) => {
-      const newBook = (({ title, author, published, genres }) => ({ title, author, published, genres }))(args)
-      const bookExists = books.some(book => book.title === newBook.title)
-      if (bookExists) {
-        throw new GraphQLError('Book must be unique', {
+    // addBook: (root, args) => {
+    //   const newBook = (({ title, author, published, genres }) => ({ title, author, published, genres }))(args)
+    //   const bookExists = books.some(book => book.title === newBook.title)
+    //   if (bookExists) {
+    //     throw new GraphQLError('Book must be unique', {
+    //       extensions: {
+    //         code: 'BAD_USER_INPUT',
+    //         invalidArgs: args.title
+    //       }
+    //     })
+    //   }
+    //   books = books.concat(newBook)
+    //   const authorExists = authors.some(author => author.name === newBook.author)
+    //   if (!authorExists) {
+    //     const newAuthor = { 
+    //       name: newBook.author,
+    //       id: uuid_v1(),
+    //       born: null
+    //     }
+    //     authors = authors.concat(newAuthor)
+    //     console.log(newAuthor)
+    //   }
+    //   return newBook
+    // },
+    addBook: async (root, args) => {
+      let author = await Author.findOne({ name: args.author })
+      console.log(author)
+      if (!author) {
+        author = new Author({ name: args.author })
+        try {
+           await author.save()
+        } catch(exception) {
+          throw new GraphQLError('Saving author failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author,
+              exception
+            }
+          })
+        }
+      }
+      console.log(author)
+      const book = new Book({ ...args, author: author.id })
+      try {
+        await book.save()
+      } catch(exception) {
+        throw new GraphQLError('Saving book failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: args.title
+            invalidArgs: args.title,
+            exception
           }
         })
       }
-      books = books.concat(newBook)
-      const authorExists = authors.some(author => author.name === newBook.author)
-      if (!authorExists) {
-        const newAuthor = { 
-          name: newBook.author,
-          id: uuid_v1(),
-          born: null
-        }
-        authors = authors.concat(newAuthor)
-        console.log(newAuthor)
-      }
-      return newBook
+      // Pystyisköhän tämän populoimaan mongoosella jotenkin?
+      // return { ...book, author: author }
+      const pupulatedBook = book.populate("author")
+      console.log(pupulatedBook)
+      return pupulatedBook
     },
     editAuthor: (root, args) => {
       const foundAuthor = authors.find(author => author.name === args.name)

@@ -1,5 +1,17 @@
 import { gql } from '@apollo/client'
 
+export const BOOK_COUNT = gql`
+  query BookCount {
+    bookCount
+  }
+`
+
+export const AUTHOR_COUNT = gql`
+  query AuthorCount {
+    authorCount
+  }
+`
+
 export const ALL_AUTHORS = gql`
   query AllAuthors {
     allAuthors {
@@ -15,7 +27,9 @@ export const ALL_BOOKS = gql`
   query AllBooks {
     allBooks {
       title
-      author
+      author {
+        name
+      }
       published
     }
   }
@@ -35,7 +49,9 @@ export const ADD_BOOK = gql`
       genres: $genres
     ) {
       title
-      author
+      author {
+        name
+      }
       published
     }
   }
