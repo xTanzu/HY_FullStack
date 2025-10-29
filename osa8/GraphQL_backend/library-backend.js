@@ -246,16 +246,41 @@ const resolvers = {
       }
       return book.populate("author")
     },
-    editAuthor: (root, args) => {
-      const foundAuthor = authors.find(author => author.name === args.name)
-      if (!foundAuthor) {
-        console.log("author not found")
-        return null
+    editAuthor: async (root, args) => {
+      // const foundAuthor = authors.find(author => author.name === args.name)
+      // if (!foundAuthor) {
+      //   console.log("author not found")
+      //   return null
+      // }
+      // console.log("author found, updating")
+      // const updatedAuthor = { ...foundAuthor, born: Number(args.setBornTo) }
+      // authors = authors.map(author => author.name !== args.name ? author : updatedAuthor)
+      // return updatedAuthor
+
+      // const foundAuthor = Author.findOne({name: args.name})
+      // if (!foundAuthor) {
+      //   console.log('author not found')
+      //   return null
+      // }
+      // console.log('author found, updating')
+
+      try {
+        const updatedAuthor = await Author.findOneAndUpdate(
+          { name: args.name }, 
+          { born: args.setBornTo },
+          { new: true }
+        )
+        console.log(updatedAuthor)
+        return updatedAuthor
+      } catch(exception) {
+        throw new GraphQLError('Updating author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            exception
+          }
+        })
       }
-      console.log("author found, updating")
-      const updatedAuthor = { ...foundAuthor, born: Number(args.setBornTo) }
-      authors = authors.map(author => author.name !== args.name ? author : updatedAuthor)
-      return updatedAuthor
     }
   },
   Author: {
