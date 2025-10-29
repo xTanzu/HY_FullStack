@@ -152,7 +152,7 @@ const typeDefs = `
   }
 `
 
-// KAIKKI POIS KOMMENTOITU ON VANHA PAIKALLINEN TAPA HAKEA DATAA. UUSI VERSIO HAKEE MONGODB:STÄ
+// KAIKKI POIS KOMMENTOITU KOODI ON VANHA PAIKALLINEN TAPA HAKEA DATAA. UUSI VERSIO HAKEE MONGODB:STÄ
 // POISTETAAN KUN KAIKKI VALMIIT
 const resolvers = {
   Query: {
@@ -161,12 +161,32 @@ const resolvers = {
     // authorCount: () => authors.length,
     authorCount: async () => await Author.countDocuments(),
     allBooks: async (root, args) => { 
-      if (args.author === undefined && args.includes === undefined) {
-        // return books
-        return await Book.find({}).populate('author')
+      // pipeline pohja joka palauttaa kaikki kirjat populoituna
+      let pipeline = [
+        {
+          $lookup: {
+             from: "authors",
+             localField: "author",
+             foreignField: "_id",
+             as: "author"
+           }
+        },
+        { 
+          $unwind: '$author'
+        }
+      ]
+
+      // rakennetaan matcherilista vain niistä argumenteista jotka löytyvät (voi lisätä jopa lisää ehtoja)
+      let matchers = []
+      if (args.author) matchers.push({ 'author.name': args.author  })
+      if (args.genre)  matchers.push({ 'genres': { $in: [args.genre] } })
+
+      // Lisätään ehdot vain jos niitä on. Muuten palautetaan kaikki
+      if (matchers.length > 0) {
+        pipeline.push({ $match: { $or: matchers } })
       }
-      const bookFilter = book => book.author === args.author || book.genres.includes(args.genre)
-      return books.filter(bookFilter)
+
+      return await Book.aggregate(pipeline)
     },
     // allAuthors: () => authors
     allAuthors: async () => Author.find({})
@@ -198,7 +218,6 @@ const resolvers = {
     // },
     addBook: async (root, args) => {
       let author = await Author.findOne({ name: args.author })
-      console.log(author)
       if (!author) {
         author = new Author({ name: args.author })
         try {
@@ -213,7 +232,6 @@ const resolvers = {
           })
         }
       }
-      console.log(author)
       const book = new Book({ ...args, author: author.id })
       try {
         await book.save()
@@ -226,11 +244,7 @@ const resolvers = {
           }
         })
       }
-      // Pystyisköhän tämän populoimaan mongoosella jotenkin?
-      // return { ...book, author: author }
-      const pupulatedBook = book.populate("author")
-      console.log(pupulatedBook)
-      return pupulatedBook
+      return book.populate("author")
     },
     editAuthor: (root, args) => {
       const foundAuthor = authors.find(author => author.name === args.name)
