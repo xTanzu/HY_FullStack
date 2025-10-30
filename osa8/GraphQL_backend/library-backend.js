@@ -165,11 +165,11 @@ const resolvers = {
       let pipeline = [
         {
           $lookup: {
-             from: "authors",
-             localField: "author",
-             foreignField: "_id",
-             as: "author"
-           }
+            from: "authors",
+            localField: "author",
+            foreignField: "_id",
+            as: "author"
+          }
         },
         { 
           $unwind: '$author'
@@ -284,7 +284,32 @@ const resolvers = {
     }
   },
   Author: {
-    bookCount: (root) => books.filter(book => book.author == root.name).length
+    // bookCount: (root) => books.filter(book => book.author == root.name).length
+    bookCount: async (root) => {
+      const pipeline = [
+        {
+          $lookup: {
+            from: 'authors',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'author'
+          }
+        },
+        {
+          $unwind: '$author'
+        },
+        {
+          $match: {
+            'author.name': root.name
+          }
+        },
+        {
+          $count: 'bookCount'
+        }
+      ]
+      const result = await Book.aggregate(pipeline)
+      return result[0].bookCount
+    }
   }
 }
 
