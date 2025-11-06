@@ -56,6 +56,13 @@ const typeDefs = `
   }
 `
 
+const extractMongoValidationErrorData = (err) => {
+  const messages = Object.values(err.errors).map(err => err.properties.message)
+  const invalidFields = Object.keys(err.errors)
+  const invalidArgs = Object.values(err.errors).map(err => err.value)
+  return { messages, invalidFields, invalidArgs }
+}
+
 const resolvers = {
   Query: {
     bookCount: async () => await Book.countDocuments(),
@@ -93,31 +100,57 @@ const resolvers = {
   Mutation: {
     addBook: async (root, args) => {
       let author = await Author.findOne({ name: args.author })
+      let addedNewAuthor = false
       if (!author) {
         author = new Author({ name: args.author })
         try {
-           await author.save()
+          await author.save()
+          addedNewAuthor = true
         } catch(exception) {
-          throw new GraphQLError('Saving author failed', {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              invalidArgs: args.author,
-              exception
-            }
-          })
+          if (exception.name === 'ValidationError') {
+            console.error('Validation failed while saving new author', exception)
+            let errorData = extractMongoValidationErrorData(exception)
+            throw new GraphQLError('Author failed validation', {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                ...errorData,
+                exception
+              }
+            })
+          } else {
+            console.error('error occured while saving the new author', exception)
+            throw new GraphQLError('Internal server error', {
+              code: 'INTERNAL_SERVER_ERROR',
+              cause: exception
+            })
+          }
         }
       }
       const book = new Book({ ...args, author: author.id })
       try {
         await book.save()
       } catch(exception) {
-        throw new GraphQLError('Saving book failed', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            invalidArgs: args.title,
-            exception
+        if (exception.name === 'ValidationError') {
+          if (addedNewAuthor) {
+            const deletedAuthor = await Author.deleteOne({ id: author.id })
+            console.log(`deleted author ${deletedAuthor.id}`)
           }
-        })
+          console.error('validation failed while saving new book', exception)
+          let errorData = extractMongoValidationErrorData(exception)
+          throw new GraphQLError('Book failed validation', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              ...errorData,
+              exception
+            }
+          })
+        } else {
+          console.error('error occured while saving the new book', exception)
+          throw new GraphQLError('Internal server error', {
+            code: 'INTERNAL_SERVER_ERROR',
+            cause: exception
+          })
+        }
       }
       return book.populate("author")
     },

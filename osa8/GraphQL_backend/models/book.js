@@ -7,8 +7,8 @@ const schema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    unique: true,
-    minlength: 5
+    unique: [ true, 'book title has to be unique (\'{VALUE}\' already exists)' ],
+    minlength: [ 5, 'book title is too short (\'{VALUE}\' is shorter than 5)' ]
   },
   published: {
     type: Number,

@@ -6,8 +6,8 @@ const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
-    minlength: 4
+    unique: [ true, 'author name has to be unique (\'{VALUE}\' already exists)' ],
+    minlength: [ 4, 'author name is too short (\'{VALUE}\' is shorter than 4)' ]
   },
   born: {
     type: Number,
