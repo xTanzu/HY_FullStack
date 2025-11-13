@@ -1,8 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 
-const { v1: uuid_v1 } = require('uuid')
-
 const { GraphQLError } = require('graphql')
 
 const Book = require('./models/book')
@@ -11,8 +9,8 @@ const Author = require('./models/author')
 const conf = require("dotenv").config()
 require("dotenv-expand").expand(conf)
 
-
 const mongoose = require("mongoose")
+
 mongoose.set('strictQuery', false)
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -60,6 +58,13 @@ const extractMongoValidationErrorData = (err) => {
   const messages = Object.values(err.errors).map(err => err.properties.message)
   const invalidFields = Object.keys(err.errors)
   const invalidArgs = Object.values(err.errors).map(err => err.value)
+  return { messages, invalidFields, invalidArgs }
+}
+
+const extractMongoDocumentNotFoundErrorData = (err) => {
+  const messages = `Document with field '${Object.keys(err.filter)}' having value '${Object.values(err.filter)}' not found..`
+  const invalidFields = Object.keys(err.filter)
+  const invalidArgs = Object.values(err.filter)
   return { messages, invalidFields, invalidArgs }
 }
 
@@ -159,17 +164,40 @@ const resolvers = {
         const updatedAuthor = await Author.findOneAndUpdate(
           { name: args.name }, 
           { born: args.setBornTo },
-          { new: true }
-        )
+          { 
+            new: true,
+            runValidators: true
+          }
+        ).orFail()
         return updatedAuthor
       } catch(exception) {
-        throw new GraphQLError('Updating author failed', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            invalidArgs: args.name,
-            exception
-          }
-        })
+        if (exception.name === 'ValidationError') {
+          console.error('validation failed while updating author', exception)
+          let errorData = extractMongoValidationErrorData(exception)
+          throw new GraphQLError('Author failed validation', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              ...errorData,
+              exception
+            }
+          })
+        } else if (exception.name === 'DocumentNotFoundError') {
+          console.error('author not found while update', exception)
+          let errorData = extractMongoDocumentNotFoundErrorData(exception)
+          throw new GraphQLError('Author not found', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              ...errorData,
+              exception
+            }
+          })
+        } else {
+          console.error('error occured while updating the author', exception)
+          throw new GraphQLError('Internal server error', {
+            code: 'INTERNAL_SERVER_ERROR',
+            cause: exception
+          }) 
+        }
       }
     }
   },
