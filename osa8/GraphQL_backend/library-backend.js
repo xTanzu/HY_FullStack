@@ -135,11 +135,11 @@ const resolvers = {
       try {
         await book.save()
       } catch(exception) {
+        if (addedNewAuthor) {
+          const deletedAuthor = await Author.findByIdAndDelete(author.id)
+          console.log(`deleted author ${deletedAuthor.id}`)
+        }
         if (exception.name === 'ValidationError') {
-          if (addedNewAuthor) {
-            const deletedAuthor = await Author.deleteOne({ id: author.id })
-            console.log(`deleted author ${deletedAuthor.id}`)
-          }
           console.error('validation failed while saving new book', exception)
           let errorData = extractMongoValidationErrorData(exception)
           throw new GraphQLError('Book failed validation', {
