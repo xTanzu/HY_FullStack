@@ -11,6 +11,7 @@ import { BOOK_COUNT, AUTHOR_COUNT } from './queries'
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
+import Notification from './components/Notification'
 
 const App = () => {
 
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/new" element={<NewBook/>} />
         </Routes>
       </Router>
+      <Notification/>
     </div>
   );
 };

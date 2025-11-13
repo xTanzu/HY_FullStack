@@ -4,15 +4,23 @@ import { useMutation } from '@apollo/client'
 
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
+import { setErrorMsg, setSuccessMsg, useNotificationDispatch } from '../context/NotificationContext'
+
 const BornSelect = ({authors}) => {
   const [name, setName] = useState('')
   const [born, setBorn] = useState('')
+
+  const notificationDispatch = useNotificationDispatch()
 
   const [ setBornTo ] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [ { query: ALL_AUTHORS } ],
     onError: (error) => {
       const message = error.graphQLErrors.map(e => e.message).join('\n')
       console.log(message)
+      notificationDispatch(setErrorMsg(message))
+    },
+    onCompleted: () => {
+      notificationDispatch(setSuccessMsg('Birth year set succesfully'))
     }
   })
 

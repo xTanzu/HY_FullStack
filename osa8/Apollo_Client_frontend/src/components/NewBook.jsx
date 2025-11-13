@@ -2,7 +2,10 @@ import { useMutation } from '@apollo/client'
 
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS, BOOK_COUNT, AUTHOR_COUNT } from '../queries'
 
+import { setErrorMsg, setSuccessMsg, useNotificationDispatch } from '../context/NotificationContext'
+
 import { useState } from 'react'
+
 
 const NewBook = (props) => {
 
@@ -12,18 +15,24 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
+  const notificationDispatch = useNotificationDispatch()
+
   const [ addBook ] = useMutation(ADD_BOOK, {
     refetchQueries: [ { query: ALL_AUTHORS }, { query: ALL_BOOKS }, { query: BOOK_COUNT }, { query: AUTHOR_COUNT } ],
     onError: (error) => {
-      const message = error.graphQLErrors.map(e => e.message).join('\n')
+      const meaningfulMessage = error.graphQLErrors[0].extensions.messages.join('\n')
+      const message = meaningfulMessage ? meaningfulMessage : error.graphQLErrors.map(e => e.message).join('\n')
       console.log(message)
+      notificationDispatch(setErrorMsg(message))
+    },
+    onCompleted: () => {
+      notificationDispatch(setSuccessMsg('book added succesfully'))
     }
   })
 
   const submit = async (event) => {
     event.preventDefault()
     const response = await addBook({ variables: { title, author, published: Number(published), genres } })
-    // console.log(response)
     setTitle('')
     setPublished('')
     setAuthor('')
@@ -37,43 +46,45 @@ const NewBook = (props) => {
   }
 
   return (
-    <div>
-    <form onSubmit={submit}>
-        <div>
-          title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </div>
-        <div>
-          author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </div>
-        <div>
-          published
-          <input
-            type="number"
-            value={published}
-            onChange={({ target }) => setPublished(target.value)}
-          />
-        </div>
-        <div>
-          <input
-            value={genre}
-            onChange={({ target }) => setGenre(target.value)}
-          />
-          <button onClick={addGenre} type="button">
-            add genre
-          </button>
-        </div>
-        <div>genres: {genres.join(' ')}</div>
-        <button type="submit">create book</button>
-      </form>
-    </div>
+    <>
+      <div>
+        <form onSubmit={submit}>
+          <div>
+            title
+            <input
+              value={title}
+              onChange={({ target }) => setTitle(target.value)}
+            />
+          </div>
+          <div>
+            author
+            <input
+              value={author}
+              onChange={({ target }) => setAuthor(target.value)}
+            />
+          </div>
+          <div>
+            published
+            <input
+              type="number"
+              value={published}
+              onChange={({ target }) => setPublished(target.value)}
+            />
+          </div>
+          <div>
+            <input
+              value={genre}
+              onChange={({ target }) => setGenre(target.value)}
+            />
+            <button onClick={addGenre} type="button">
+              add genre
+            </button>
+          </div>
+          <div>genres: {genres.join(' ')}</div>
+          <button type="submit">create book</button>
+        </form>
+      </div>
+    </>
   )
 }
 

@@ -3,7 +3,6 @@ import { useQuery } from '@apollo/client'
 import { ALL_AUTHORS } from '../queries'
 
 import AuthorDisplay from './AuthorDisplay'
-import BornForm from './BornForm'
 import BornSelect from './BornSelect'
 
 const Authors = (props) => {

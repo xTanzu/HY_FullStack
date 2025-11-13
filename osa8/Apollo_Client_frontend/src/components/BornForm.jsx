@@ -1,3 +1,6 @@
+// This module is not in use, but it was what was asked in the exercise, so I will include it
+// I made a better and easier to use dropdown menu unstead
+
 import { useState } from 'react'
 
 import { useMutation } from '@apollo/client'
