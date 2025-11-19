@@ -1,10 +1,13 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 
+const jwt = require('jsonwebtoken')
+
 const { GraphQLError } = require('graphql')
 
 const Book = require('./models/book')
 const Author = require('./models/author')
+const User = require('./models/user')
 
 const conf = require("dotenv").config()
 require("dotenv-expand").expand(conf)
@@ -18,6 +21,16 @@ mongoose.connect(process.env.MONGODB_URI)
 
 
 const typeDefs = `
+  type User {
+    username: String!
+    favouriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
   type Book {
     title: String!
     published: Int!
@@ -34,6 +47,7 @@ const typeDefs = `
   }
 
   type Query {
+    me: User
     bookCount: Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book]
@@ -51,6 +65,14 @@ const typeDefs = `
       name: String!,
       setBornTo: Int!
     ): Author
+    createUser(
+      username: String!,
+      favouriteGenre: String!
+    ): User
+    login(
+      username: String!,
+      password: String!
+    ): Token
   }
 `
 
@@ -66,6 +88,16 @@ const extractMongoDocumentNotFoundErrorData = (err) => {
   const invalidFields = Object.keys(err.filter)
   const invalidArgs = Object.values(err.filter)
   return { messages, invalidFields, invalidArgs }
+}
+
+const errorIfNotAuthenticated = (context) => {
+  if (!context.currentUser) {
+    throw new GraphQLError('Not signed in', {
+      extensions: {
+        code: 'BAD_USER_INPUT'
+      }
+    })
+  }
 }
 
 const resolvers = {
@@ -100,10 +132,15 @@ const resolvers = {
 
       return await Book.aggregate(pipeline)
     },
-    allAuthors: async () => Author.find({})
+    allAuthors: async () => Author.find({}),
+    me: (root, args, context) => {
+      errorIfNotAuthenticated(context)
+      return context.currentUser
+    }
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      errorIfNotAuthenticated(context)
       let author = await Author.findOne({ name: args.author })
       let addedNewAuthor = false
       if (!author) {
@@ -140,7 +177,7 @@ const resolvers = {
           console.log(`deleted author ${deletedAuthor.id}`)
         }
         if (exception.name === 'ValidationError') {
-          console.error('validation failed while saving new book', exception)
+          console.error('Validation failed while saving new book', exception)
           let errorData = extractMongoValidationErrorData(exception)
           throw new GraphQLError('Book failed validation', {
             extensions: {
@@ -159,7 +196,8 @@ const resolvers = {
       }
       return book.populate("author")
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
+      errorIfNotAuthenticated(context)
       try {
         const updatedAuthor = await Author.findOneAndUpdate(
           { name: args.name }, 
@@ -172,7 +210,7 @@ const resolvers = {
         return updatedAuthor
       } catch(exception) {
         if (exception.name === 'ValidationError') {
-          console.error('validation failed while updating author', exception)
+          console.error('Validation failed while updating author', exception)
           let errorData = extractMongoValidationErrorData(exception)
           throw new GraphQLError('Author failed validation', {
             extensions: {
@@ -182,7 +220,7 @@ const resolvers = {
             }
           })
         } else if (exception.name === 'DocumentNotFoundError') {
-          console.error('author not found while update', exception)
+          console.error('Author not found while update:', exception)
           let errorData = extractMongoDocumentNotFoundErrorData(exception)
           throw new GraphQLError('Author not found', {
             extensions: {
@@ -192,13 +230,53 @@ const resolvers = {
             }
           })
         } else {
-          console.error('error occured while updating the author', exception)
+          console.error('Error occured while updating the author', exception)
           throw new GraphQLError('Internal server error', {
             code: 'INTERNAL_SERVER_ERROR',
             cause: exception
           }) 
         }
       }
+    },
+    createUser: async (root, args) => {
+      try {
+        const user = new User({ username: args.username, favouriteGenre: args.favouriteGenre })
+        await user.save()
+        return user
+      } catch(exception) {
+        if (exception.name === 'ValidationError') {
+          console.log('Validation failed while creating a new user')
+          let errorData = extractMongoValidationErrorData(exception)
+          throw new GraphQLError('User failed validation', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              ...errorData,
+              exception
+            }
+          })
+        } else {
+          console.log('Error occured while creating user', exception)
+          throw new GraphQLError('Internal server error', {
+            code: 'INTERNAL_SERVER_ERROR',
+            cause: exception
+          })
+        }
+      }
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username })
+      if (!user || args.password !== 'secret') {
+        throw new GraphQLError('Wrong credentials', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+      const userForToken = {
+        username: user.username,
+        id: user._id
+      }
+      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     }
   },
   Author: {
@@ -237,6 +315,30 @@ const server = new ApolloServer({
 
 startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async ({ req, res }) => {
+    let currentUser = null
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.startsWith('Bearer ')) {
+      try {
+        const decodedToken = jwt.verify(auth.substr(7), process.env.JWT_SECRET)
+        currentUser = await User.findById(decodedToken.id)
+      } catch(exception) {
+        console.error(exception)
+        if (exception.name === 'JsonWebTokenError') {
+          throw new GraphQLError('Connection not authorized', {
+            code: 'BAD_CONNECTION_TOKEN'
+          })
+        } else {
+          console.log('Error occured while extracting the access token', exception)
+          throw new GraphQLError('Internal server error', {
+            code: 'INTERNAL_SERVER_ERROR',
+            cause: exception
+          })
+        }
+      }
+    }
+    return { currentUser }
+  }
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })
