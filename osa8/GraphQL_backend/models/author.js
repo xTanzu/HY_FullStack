@@ -11,7 +11,7 @@ const schema = new mongoose.Schema({
   },
   born: {
     type: Number,
-    max: [ 2025, 'author cannot be born after currect year' ]
+    max: [ 2026, 'author cannot be born after currect year' ]
   },
 })
 
