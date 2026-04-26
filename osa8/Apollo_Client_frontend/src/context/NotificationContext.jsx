@@ -59,4 +59,18 @@ export const useNotificationDispatch = () => {
   return notificationDispatch
 }
 
+export const useNotification = () => {
+  const { notificationDispatch } = useContext(notificationContext)
+
+  const setError = (message) => {
+    notificationDispatch(setErrorMsg(message))
+  }
+
+  const setSuccess = (message) => {
+    notificationDispatch(setSuccessMsg(message))
+  }
+
+  return { setError, setSuccess }
+}
+
 export default notificationContext
