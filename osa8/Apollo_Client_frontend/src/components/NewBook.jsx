@@ -1,5 +1,7 @@
 import { useMutation } from '@apollo/client'
 
+import { useNavigate } from 'react-router-dom'
+
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS, BOOK_COUNT, AUTHOR_COUNT } from '../queries'
 
 import { setErrorMsg, setSuccessMsg, useNotificationDispatch } from '../context/NotificationContext'
@@ -8,6 +10,12 @@ import { useState } from 'react'
 
 
 const NewBook = (props) => {
+
+  const navigate = useNavigate()
+
+  if (!localStorage.getItem('books-user-token')) {
+    navigate('/')
+  }
 
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
