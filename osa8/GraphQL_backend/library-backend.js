@@ -46,12 +46,18 @@ const typeDefs = `
     bookCount: Int!
   }
 
+  type GenreStats {
+    genre: String!
+    count: Int!
+  }
+
   type Query {
     me: User
     bookCount: Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book]
     allAuthors: [Author]!
+    allGenres: [GenreStats]!
   }
 
   type Mutation {
@@ -102,6 +108,10 @@ const errorIfNotAuthenticated = (context) => {
 
 const resolvers = {
   Query: {
+    me: (root, args, context) => {
+      errorIfNotAuthenticated(context)
+      return context.currentUser
+    },
     bookCount: async () => await Book.countDocuments(),
     authorCount: async () => await Author.countDocuments(),
     allBooks: async (root, args) => { 
@@ -133,9 +143,39 @@ const resolvers = {
       return await Book.aggregate(pipeline)
     },
     allAuthors: async () => Author.find({}),
-    me: (root, args, context) => {
-      errorIfNotAuthenticated(context)
-      return context.currentUser
+    allGenres: async () => {
+      let pipeline = [
+        // pura genrejen lista omiksi dokumenteiksi
+        {
+          $unwind: {
+            path: '$genres'
+          }
+        },
+        // filtteröi tyhjät pois
+        {
+          $match: {
+            genres: { $ne: "" }
+          }
+        },
+        // ryhmittele uniikeiksi genreiksi ja laske määrä
+        {
+          $group: {
+            _id: '$genres', 
+            count: {
+              $count: {}
+            }
+          }
+        },
+        // muokkaa objektin kentät halutuiksi
+        {
+          $project: {
+            genre: "$_id",
+            _id: 0,
+            count: 1
+          }
+        }
+      ]
+      return await Book.aggregate(pipeline)
     }
   },
   Mutation: {
