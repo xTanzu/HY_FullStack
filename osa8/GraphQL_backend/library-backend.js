@@ -173,6 +173,12 @@ const resolvers = {
             _id: 0,
             count: 1
           }
+        },
+        {
+          $sort: {
+            count: -1,
+            genre: 1
+          }
         }
       ]
       return await Book.aggregate(pipeline)
