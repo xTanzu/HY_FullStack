@@ -12,6 +12,18 @@ export const AUTHOR_COUNT = gql`
   }
 `
 
+export const ALL_BOOKS = gql`
+  query AllBooks {
+    allBooks {
+      title
+      author {
+        name
+      }
+      published
+    }
+  }
+`
+
 export const ALL_AUTHORS = gql`
   query AllAuthors {
     allAuthors {
@@ -23,14 +35,11 @@ export const ALL_AUTHORS = gql`
   }
 `
 
-export const ALL_BOOKS = gql`
-  query AllBooks {
-    allBooks {
-      title
-      author {
-        name
-      }
-      published
+export const ALL_GENRES = gql`
+  query AllGenres {
+    allGenres {
+      genre
+      count
     }
   }
 `
