@@ -2,6 +2,8 @@ import { useState } from 'react'
 
 import { useQuery } from '@apollo/client'
 
+import BookDisplay from './BookDisplay'
+
 import { ALL_BOOKS, ALL_GENRES } from '../queries'
 
 const Books = (props) => {
@@ -22,24 +24,10 @@ const Books = (props) => {
     <div>
       <h2>books</h2>
 
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {books
-            .filter((b) => (genreFilter == null ? true : b.genres.includes(genreFilter)))
-            .map((b) => (
-              <tr key={b.title}>
-                <td>{b.title}</td>
-                <td>{b.author.name}</td>
-                <td>{b.published}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <BookDisplay books={
+        books.filter((b) => (genreFilter == null ? true : b.genres.includes(genreFilter)))
+      } />
+
       {genres.map((g) => (
         <button key={g.genre} onClick={() => setGenreFilter(g.genre)}>{g.genre}</button>
       ))}
