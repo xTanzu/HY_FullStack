@@ -15,6 +15,7 @@ import { useNotification } from './context/NotificationContext'
 import Authors from "./components/Authors"
 import Books from "./components/Books"
 import NewBook from "./components/NewBook"
+import Recommendations from "./components/Recommendations"
 import Login from "./components/Login"
 import Notification from './components/Notification'
 
@@ -72,6 +73,7 @@ const App = () => {
         <div>
         <Link style={linkStyle} to="/">authors</Link>
         <Link style={linkStyle} to="/books">books</Link>
+        { token && <Link style={linkStyle} to="/recommendations">recommend</Link> }
         { token && <Link style={linkStyle} to="/new">add book</Link> }
         { !token ? 
           <Link style={linkStyle} to="/login">login</Link> : 
@@ -82,8 +84,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Authors/>} />
         <Route path="/books" element={<Books/>} />
+        <Route path="/recommendations" element={<Recommendations/>} />
         <Route path="/new" element={<NewBook/>} />
-        <Route path="/login" element={<Login setToken={setToken}/>}/>
+        <Route path="/login" element={<Login setToken={setToken}/>} />
       </Routes>
       <Notification/>
     </div>
