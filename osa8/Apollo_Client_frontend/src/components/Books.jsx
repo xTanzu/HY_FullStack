@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { useQuery } from '@apollo/client'
 
@@ -10,7 +10,11 @@ const Books = (props) => {
 
   const [genreFilter, setGenreFilter] = useState(null)
 
-  const booksResult = useQuery(ALL_BOOKS)
+  const booksResult = useQuery(ALL_BOOKS, {
+    variables: {
+      genre: genreFilter
+    }
+  })
   const genresResult = useQuery(ALL_GENRES)
 
   if (booksResult.loading) {
@@ -19,14 +23,12 @@ const Books = (props) => {
   
   const books = booksResult.data.allBooks
   const genres = !genresResult.loading ? genresResult.data.allGenres : []
-  
+
   return (
     <div>
       <h2>books</h2>
 
-      <BookDisplay books={
-        books.filter((b) => (genreFilter == null ? true : b.genres.includes(genreFilter)))
-      } />
+      <BookDisplay books={books} />
 
       {genres.map((g) => (
         <button key={g.genre} onClick={() => setGenreFilter(g.genre)}>{g.genre}</button>
