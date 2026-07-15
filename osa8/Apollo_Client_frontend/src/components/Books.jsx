@@ -13,9 +13,12 @@ const Books = (props) => {
   const booksResult = useQuery(ALL_BOOKS, {
     variables: {
       genre: genreFilter
-    }
+    },
+    fetchPolicy: "cache-and-network",
   })
-  const genresResult = useQuery(ALL_GENRES)
+  const genresResult = useQuery(ALL_GENRES, {
+    fetchPolicy: "cache-and-network",
+  })
 
   if (booksResult.loading) {
     return <div>...loading</div>
@@ -27,6 +30,8 @@ const Books = (props) => {
   return (
     <div>
       <h2>books</h2>
+
+      { genreFilter && <h3>{genreFilter}</h3> }
 
       <BookDisplay books={books} />
 

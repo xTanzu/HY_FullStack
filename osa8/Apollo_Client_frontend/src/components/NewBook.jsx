@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client'
 
 import { useNavigate } from 'react-router-dom'
 
-import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS, BOOK_COUNT, AUTHOR_COUNT } from '../queries'
+import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, BOOK_COUNT, AUTHOR_COUNT } from '../queries'
 
 import { setErrorMsg, setSuccessMsg, useNotificationDispatch } from '../context/NotificationContext'
 
@@ -25,8 +25,9 @@ const NewBook = (props) => {
 
   const notificationDispatch = useNotificationDispatch()
 
+  // refetchQueries: [ { query: ALL_AUTHORS }, { query: ALL_BOOKS }, { query: ALL_GENRES }, { query: BOOK_COUNT }, { query: AUTHOR_COUNT } ],
   const [ addBook ] = useMutation(ADD_BOOK, {
-    refetchQueries: [ { query: ALL_AUTHORS }, { query: ALL_BOOKS }, { query: BOOK_COUNT }, { query: AUTHOR_COUNT } ],
+    refetchQueries: "active",
     onError: (error) => {
       const meaningfulMessage = error.graphQLErrors[0].extensions.messages.join('\n')
       const message = meaningfulMessage ? meaningfulMessage : error.graphQLErrors.map(e => e.message).join('\n')
