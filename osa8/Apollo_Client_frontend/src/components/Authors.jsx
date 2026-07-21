@@ -6,7 +6,9 @@ import AuthorDisplay from './AuthorDisplay'
 import BornSelect from './BornSelect'
 
 const Authors = (props) => {
-  const result = useQuery(ALL_AUTHORS)
+  const result = useQuery(ALL_AUTHORS, {
+    fetchPolicy: "cache-and-network"
+  })
 
   if (result.loading) {
     return <div>...loading</div>

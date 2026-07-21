@@ -20,6 +20,10 @@ const Books = (props) => {
     fetchPolicy: "cache-and-network",
   })
 
+  useEffect(() => {
+    genresResult.refetch()
+  }, [genreFilter])
+
   if (booksResult.loading) {
     return <div>...loading</div>
   }
